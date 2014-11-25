@@ -1,0 +1,29 @@
+{
+    "name": "popphp/pop-log",
+    "description": "Pop Log Component for Pop PHP Framework 2",
+    "keywords": [
+        "log",
+        "logging",
+        "php",
+        "pop",
+        "pop php",
+        "pop php 2"
+    ],
+    "homepage": "http://www.popphp.org/",
+    "license": "New BSD",
+    "authors": [
+        {
+            "name": "Nick Sagona",
+            "email": "dev@nolainteractive.com",
+            "homepage": "http://www.nolainteractive.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pop\\": "src/"
+        }
+    }
+}
