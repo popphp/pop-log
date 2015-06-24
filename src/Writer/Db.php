@@ -58,7 +58,12 @@ class Db implements WriterInterface
         if (null === $sql->getTable()) {
             throw new Exception('Error: The SQL object does not have a table defined.');
         }
+
         $this->sql = $sql;
+
+        if (!in_array($sql->getTable(), $sql->db()->getTables())) {
+            $this->createTable();
+        }
     }
 
     /**
@@ -92,6 +97,28 @@ class Db implements WriterInterface
                         ->execute();
 
         return $this;
+    }
+
+    /**
+     * Create table in databse
+     *
+     * @return void
+     */
+    protected function createTable()
+    {
+        if (file_exists(__DIR__ . '/Sql/' . strtolower($this->sql->getDbType()) . '.sql')) {
+            $sql = str_replace(
+                '[{table}]',
+                $this->sql->getTable(),
+                file_get_contents(__DIR__ . '/Sql/' . strtolower($this->sql->getDbType()) . '.sql')
+            );
+            $queries = explode(';', $sql);
+            foreach ($queries as $query) {
+                if (!empty($query) && ($query != '')) {
+                    $this->sql->db()->query($query);
+                }
+            }
+        }
     }
 
 }
