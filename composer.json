@@ -18,12 +18,14 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "popphp/pop-db": "2.0.*",
-        "popphp/pop-mail": "2.0.*"
+        "php": ">=5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "4.6.*"
+    },
+    "suggest": {
+        "popphp/pop-db": "For writing logs to a table in a database",
+        "popphp/pop-mail": "For sending logs to email addresses"
     },
     "autoload": {
         "psr-4": {
