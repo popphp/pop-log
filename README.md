@@ -44,7 +44,8 @@ BASIC USAGE
 
 ### Using a log file
 
-Setting up and using a log is pretty simple:
+Setting up and using a log file is pretty simple. Plain text is the default,
+but there is also support for CSV, TSV and XML formats:
 
 ```php
 use Pop\Log\Logger;
@@ -61,7 +62,7 @@ Then, your 'app.log' file will contain:
     2015-07-11 12:32:32    6    INFO    Just a info message.
     2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
 
-### Using a email
+### Using email
 
 Here's an example using email, which requires you to install `popphp/pop-mail`:
 
@@ -87,7 +88,7 @@ and
     Subject: Log Entry: ALERT (1)
     2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
 
-### Using a a database table
+### Using a database table
 
 Writing a log to a table in a database requires you to install `popphp/pop-db`:
 
@@ -110,8 +111,8 @@ In this case, the logs are written to a database table that has the columns
 `id`, `timestamp`, `priority`, `name` and `message`. So, after the example above,
 your database table would look like this:
 
-|id|timestamp          |priority|name |message                              |
-|--|-------------------|--------|-----|-------------------------------------|
-|1 |2015-07-11 12:32:32|6       |INFO |Just a info message.                 |
-|2 |2015-07-11 12:32:33|1       |ALERT|Look Out! Something serious happened!|
+| Id | Timestamp           | Priority | Name  | Message                               |
+|----|---------------------|----------|-------|---------------------------------------|
+| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
+| 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
 
