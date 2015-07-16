@@ -2,6 +2,7 @@ pop-log
 =======
 
 [![Build Status](https://travis-ci.org/popphp/pop-log.svg?branch=master)](https://travis-ci.org/popphp/pop-log)
+[![Coverage Status](http://www.popphp.org/cc/coverage.php?comp=pop-log)](http://www.popphp.org/cc/pop-log/)
 
 OVERVIEW
 --------
