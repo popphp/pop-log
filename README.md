@@ -117,7 +117,7 @@ your database table would look like this:
 | 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
 | 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
 
-### Custom Logging
+### Custom logging
 
 You can also write a non-standard, custom log that is specific to your app:
 
