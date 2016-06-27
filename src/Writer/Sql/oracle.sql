@@ -1,8 +1,9 @@
 CREATE TABLE "[{table}]" (
   "id" NUMBER GENERATED ALWAYS AS IDENTITY,
   "timestamp" timestamp,
-  "priority" int,
+  "level" int,
   "name" varchar,
   "message" text,
+  "context" text,
   PRIMARY KEY ("id")
 ) ;

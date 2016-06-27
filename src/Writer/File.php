@@ -21,9 +21,9 @@ namespace Pop\Log\Writer;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.0.0
+ * @version    2.1.0
  */
-class File implements WriterInterface
+class File extends AbstractWriter
 {
 
     /**
@@ -113,26 +113,28 @@ class File implements WriterInterface
     /**
      * Write to the log
      *
-     * @param  array $logEntry
+     * @param  mixed  $level
+     * @param  string $message
+     * @param  array  $context
      * @return File
      */
-    public function writeLog(array $logEntry)
+    public function writeLog($level, $message, array $context = [])
     {
         switch ($this->mime) {
             case 'text/plain':
-                $entry = implode("\t", $logEntry) . PHP_EOL;
+                $entry = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
                 file_put_contents($this->fullpath, $entry, FILE_APPEND);
                 break;
 
             case 'text/csv':
-                $logEntry['message'] = '"' . str_replace('"', '\"', $logEntry['message']) . '"' ;
-                $entry = implode(",", $logEntry) . PHP_EOL;
+                $message = '"' . str_replace('"', '\"', $message) . '"' ;
+                $entry   = $context['timestamp'] . "," . $level . "," . $context['name'] . "," . $message . "," . $this->getContext($context) . PHP_EOL;
                 file_put_contents($this->fullpath, $entry, FILE_APPEND);
                 break;
 
             case 'text/tsv':
-                $logEntry['message'] = '"' . str_replace('"', '\"', $logEntry['message']) . '"' ;
-                $entry = implode("\t", $logEntry) . PHP_EOL;
+                $message = '"' . str_replace('"', '\"', $message) . '"' ;
+                $entry   = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
                 file_put_contents($this->fullpath, $entry, FILE_APPEND);
                 break;
 
@@ -141,12 +143,30 @@ class File implements WriterInterface
                 if (strpos($output, '<?xml version') === false) {
                     $output = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL . '<log>' . PHP_EOL . '</log>' . PHP_EOL;
                 }
-                $entry  = '    <entry timestamp="' . $logEntry['timestamp'] . '" priority="' . $logEntry['priority'] . '" name="' . $logEntry['name'] . '"><![CDATA[' . $logEntry['message'] . ']]></entry>' . PHP_EOL;
+
+                $messageContext = $this->getContext($context);
+
+                $entry  = ($messageContext != '') ?
+                    '    <entry timestamp="' . $context['timestamp'] . '" priority="' . $level . '" name="' . $context['name'] . '" context="' . $messageContext . '"><![CDATA[' . $message . ']]></entry>' . PHP_EOL :
+                    '    <entry timestamp="' . $context['timestamp'] . '" priority="' . $level . '" name="' . $context['name'] . '"><![CDATA[' . $message . ']]></entry>' . PHP_EOL;
+
                 $output = str_replace('</log>' . PHP_EOL, $entry . '</log>' . PHP_EOL, $output);
                 file_put_contents($this->fullpath, $output);
                 break;
         }
 
+        return $this;
+    }
+
+    /**
+     * Write to a custom log
+     *
+     * @param  string $content
+     * @return File
+     */
+    public function writeCustomLog($content)
+    {
+        file_put_contents($this->fullpath, $content . PHP_EOL, FILE_APPEND);
         return $this;
     }
 

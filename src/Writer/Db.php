@@ -21,9 +21,9 @@ namespace Pop\Log\Writer;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.0.0
+ * @version    2.1.0
  */
-class Db implements WriterInterface
+class Db extends AbstractWriter
 {
 
     /**
@@ -39,7 +39,7 @@ class Db implements WriterInterface
      *
      * The DB table requires the following fields at a minimum:
      *     timestamp  DATETIME
-     *     priority   INT
+     *     level      INT
      *     name       VARCHAR
      *     message    TEXT, VARCHAR, etc.
      *
@@ -67,16 +67,26 @@ class Db implements WriterInterface
     /**
      * Write to the log
      *
-     * @param  array $logEntry
+     * @param  mixed  $level
+     * @param  string $message
+     * @param  array  $context
      * @return Db
      */
-    public function writeLog(array $logEntry)
+    public function writeLog($level, $message, array $context = [])
     {
+        $fields = [
+            'timestamp' => $context['timestamp'],
+            'level'     => $level,
+            'name'      => $context['name'],
+            'message'   => $message,
+            'context'   => $this->getContext($context)
+        ];
+
         $columns = [];
         $params  = [];
 
         $i = 1;
-        foreach ($logEntry as $column => $value) {
+        foreach ($fields as $column => $value) {
             $placeholder = $this->sql->getPlaceholder();
 
             if ($placeholder == ':') {
@@ -90,9 +100,52 @@ class Db implements WriterInterface
         }
 
         $this->sql->insert($columns);
-        $this->sql->db()->prepare((string)$this->sql)
-                        ->bindParams($params)
-                        ->execute();
+        $this->sql->db()
+            ->prepare((string)$this->sql)
+            ->bindParams($params)
+            ->execute();
+
+        return $this;
+    }
+
+    /**
+     * Write to a custom log
+     *
+     * @param  string $content
+     * @return Db
+     */
+    public function writeCustomLog($content)
+    {
+        $fields = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'level'     => -1,
+            'name'      => 'CUSTOM',
+            'message'   => $content,
+            'context'   => ''
+        ];
+
+        $columns = [];
+        $params  = [];
+
+        $i = 1;
+        foreach ($fields as $column => $value) {
+            $placeholder = $this->sql->getPlaceholder();
+
+            if ($placeholder == ':') {
+                $placeholder .= $column;
+            } else if ($placeholder == '$') {
+                $placeholder .= $i;
+            }
+            $columns[$column] = $placeholder;
+            $params[$column]  = $value;
+            $i++;
+        }
+
+        $this->sql->insert($columns);
+        $this->sql->db()
+            ->prepare((string)$this->sql)
+            ->bindParams($params)
+            ->execute();
 
         return $this;
     }

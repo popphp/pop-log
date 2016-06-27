@@ -21,13 +21,13 @@ namespace Pop\Log;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.0.0
+ * @version    2.1.0
  */
 class Logger
 {
 
     /**
-     * Constants for message priorities
+     * Constants for log levels
      * @var int
      */
     const EMERG  = 0;
@@ -40,10 +40,10 @@ class Logger
     const DEBUG  = 7;
 
     /**
-     * Message priority short codes
+     * Message level short codes
      * @var array
      */
-    protected $priorities = [
+    protected $levels = [
         0 => 'EMERG',
         1 => 'ALERT',
         2 => 'CRIT',
@@ -128,22 +128,18 @@ class Logger
     /**
      * Add a log entry
      *
-     * @param  int   $priority
+     * @param  mixed $level
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function log($priority, $message, array $options = [])
+    public function log($level, $message, array $context = [])
     {
-        $logEntry = [
-            'timestamp' => date($this->timestamp),
-            'priority'  => (int) $priority,
-            'name'      => $this->priorities[$priority],
-            'message'   => (string) $message
-        ];
+        $context['timestamp'] = date($this->timestamp);
+        $context['name']      = $this->levels[$level];
 
         foreach ($this->writers as $writer) {
-            $writer->writeLog($logEntry, $options);
+            $writer->writeLog($level, (string)$message, $context);
         }
 
         return $this;
@@ -153,96 +149,111 @@ class Logger
      * Add an EMERG log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function emerg($message, array $options = [])
+    public function emerg($message, array $context = [])
     {
-        return $this->log(self::EMERG, $message, $options);
+        return $this->log(self::EMERG, $message, $context);
     }
 
     /**
      * Add an ALERT log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function alert($message, array $options = [])
+    public function alert($message, array $context = [])
     {
-        return $this->log(self::ALERT, $message, $options);
+        return $this->log(self::ALERT, $message, $context);
     }
 
     /**
      * Add a CRIT log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function crit($message, array $options = [])
+    public function crit($message, array $context = [])
     {
-        return $this->log(self::CRIT, $message, $options);
+        return $this->log(self::CRIT, $message, $context);
     }
 
     /**
      * Add an ERR log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function err($message, array $options = [])
+    public function err($message, array $context = [])
     {
-        return $this->log(self::ERR, $message, $options);
+        return $this->log(self::ERR, $message, $context);
     }
 
     /**
      * Add a WARN log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function warn($message, array $options = [])
+    public function warn($message, array $context = [])
     {
-        return $this->log(self::WARN, $message, $options);
+        return $this->log(self::WARN, $message, $context);
     }
 
     /**
      * Add a NOTICE log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function notice($message, array $options = [])
+    public function notice($message, array $context = [])
     {
-        return $this->log(self::NOTICE, $message, $options);
+        return $this->log(self::NOTICE, $message, $context);
     }
 
     /**
      * Add an INFO log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function info($message, array $options = [])
+    public function info($message, array $context = [])
     {
-        return $this->log(self::INFO, $message, $options);
+        return $this->log(self::INFO, $message, $context);
     }
 
     /**
      * Add a DEBUG log entry
      *
      * @param  mixed $message
-     * @param  array $options
+     * @param  array $context
      * @return Logger
      */
-    public function debug($message, array $options = [])
+    public function debug($message, array $context = [])
     {
-        return $this->log(self::DEBUG, $message, $options);
+        return $this->log(self::DEBUG, $message, $context);
+    }
+
+    /**
+     * Write a custom log entry
+     *
+     * @param  string $content
+     * @return Logger
+     */
+    public function customLog($content)
+    {
+        foreach ($this->writers as $writer) {
+            $writer->writeCustomLog($content);
+        }
+
+        return $this;
     }
 
 }

@@ -1,9 +1,10 @@
 CREATE TABLE "[{table}]" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "timestamp" datetime,
-  "priority" integer,
+  "level" integer,
   "name" varchar,
   "message" text,
+  "context" text,
   UNIQUE ("id")
 ) ;
 

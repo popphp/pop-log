@@ -21,9 +21,9 @@ namespace Pop\Log\Writer;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.0.0
+ * @version    2.1.0
  */
-class Mail implements WriterInterface
+class Mail extends AbstractWriter
 {
 
     /**
@@ -73,25 +73,50 @@ class Mail implements WriterInterface
     /**
      * Write to the log
      *
-     * @param  array $logEntry
+     * @param  mixed  $level
+     * @param  string $message
+     * @param  array  $context
      * @return Mail
      */
-    public function writeLog(array $logEntry)
+    public function writeLog($level, $message, array $context = [])
     {
         $subject = (isset($this->options['subject'])) ?
             $this->options['subject'] :
             'Log Entry:';
 
-        $subject .= ' ' . $logEntry['name'] . ' (' . $logEntry['priority'] . ')';
+        $subject .= ' ' . $context['name'] . ' (' . $level . ')';
 
         $mail = new \Pop\Mail\Mail($subject, $this->emails);
         if (isset($this->options['headers'])) {
             $mail->setHeaders($this->options['headers']);
         }
 
-        $entry = implode("\t", $logEntry) . PHP_EOL;
+        $entry = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
 
         $mail->setText($entry)
+             ->send();
+
+        return $this;
+    }
+
+    /**
+     * Write to a custom log
+     *
+     * @param  string $content
+     * @return Mail
+     */
+    public function writeCustomLog($content)
+    {
+        $subject = (isset($this->options['subject'])) ?
+            $this->options['subject'] :
+            'Custom Log Entry';
+
+        $mail = new \Pop\Mail\Mail($subject, $this->emails);
+        if (isset($this->options['headers'])) {
+            $mail->setHeaders($this->options['headers']);
+        }
+
+        $mail->setText($content . PHP_EOL)
              ->send();
 
         return $this;

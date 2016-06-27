@@ -1,8 +1,9 @@
 CREATE TABLE [[{table}]] (
   [id] int IDENTITY(1,1) PRIMARY KEY NOT NULL,
   [timestamp] timestamp,
-  [priority] int,
+  [level] int,
   [name] varchar,
   [message] text,
+  [context] text,
   PRIMARY KEY ("id")
 ) ;

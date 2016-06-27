@@ -25,17 +25,15 @@ class WriterDbTest extends \PHPUnit_Framework_TestCase
         $writer = new Db($sql);
     }
 
-    public function testWrite()
+    public function testLog()
     {
         $db     = D::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
         $sql    = new Sql($db);
         $writer = new Db($sql, 'logs');
 
-        $writer->writeLog([
+        $writer->writeLog(5, 'This is a database test.', [
             'timestamp' => date('Y-m-d H:i:s'),
-            'priority'  => 5,
-            'name'      => 'NOTICE',
-            'message'   => 'This is a database test.'
+            'name'      => 'NOTICE'
         ]);
 
         $db->query('SELECT * FROM logs');
@@ -44,6 +42,15 @@ class WriterDbTest extends \PHPUnit_Framework_TestCase
             $rows[] = $row;
         }
         $this->assertEquals('This is a database test.', $rows[0]['message']);
+    }
+
+    public function testCustomLog()
+    {
+        $db     = D::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
+        $sql    = new Sql($db);
+        $writer = new Db($sql, 'logs');
+        $writer->writeCustomLog('This is a custom log test.');
+        $this->assertInstanceOf('Pop\Log\Writer\Db', $writer);
     }
 
 }

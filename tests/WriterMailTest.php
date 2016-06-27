@@ -21,19 +21,24 @@ class WriterMailTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Pop\Log\Writer\Mail', $writer);
     }
 
-    public function testSend()
+    public function testLog()
     {
         $writer = new Mail('nobody@localhost', [
             'headers' => [
                 'Reply-To' => 'noreply@localhost'
             ]
         ]);
-        $writer->writeLog([
+        $writer->writeLog(5, 'This is a mail test.', [
             'timestamp' => date('Y-m-d H:i:s'),
-            'priority'  => 5,
-            'name'      => 'NOTICE',
-            'message'   => 'This is a mail test.'
+            'name'      => 'NOTICE'
         ]);
+    }
+
+    public function testCustomLog()
+    {
+        $writer = new Mail('nobody@localhost', ['headers' => ['From' => 'noreply@localhost']]);
+        $writer->writeCustomLog('This is a custom log test.');
+        $this->assertInstanceOf('Pop\Log\Writer\Mail', $writer);
     }
 
 }
