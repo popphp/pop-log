@@ -17,11 +17,11 @@ namespace Pop\Log\Writer;
  * Log writer abstract class
  *
  * @category   Pop
- * @package    Pop_Log
+ * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.2.0
+ * @version    3.0.0
  */
 abstract class AbstractWriter implements WriterInterface
 {
@@ -35,14 +35,6 @@ abstract class AbstractWriter implements WriterInterface
      * @return AbstractWriter
      */
     abstract public function writeLog($level, $message, array $context = []);
-
-    /**
-     * Write to a custom log
-     *
-     * @param  string $content
-     * @return AbstractWriter
-     */
-    abstract public function writeCustomLog($content);
 
     /**
      * Get context for log

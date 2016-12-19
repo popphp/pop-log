@@ -17,11 +17,11 @@ namespace Pop\Log;
  * Logger class
  *
  * @category   Pop
- * @package    Pop_Log
+ * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.2.0
+ * @version    3.0.0
  */
 class Logger
 {
@@ -30,28 +30,28 @@ class Logger
      * Constants for log levels
      * @var int
      */
-    const EMERG  = 0;
-    const ALERT  = 1;
-    const CRIT   = 2;
-    const ERR    = 3;
-    const WARN   = 4;
-    const NOTICE = 5;
-    const INFO   = 6;
-    const DEBUG  = 7;
+    const EMERGENCY = 0;
+    const ALERT     = 1;
+    const CRITICAL  = 2;
+    const ERROR     = 3;
+    const WARNING   = 4;
+    const NOTICE    = 5;
+    const INFO      = 6;
+    const DEBUG     = 7;
 
     /**
      * Message level short codes
      * @var array
      */
     protected $levels = [
-        0 => 'EMERG',
+        0 => 'EMERGENCY',
         1 => 'ALERT',
-        2 => 'CRIT',
-        3 => 'ERR',
-        4 => 'WARN',
+        2 => 'CRITICAL',
+        3 => 'ERROR',
+        4 => 'WARNING',
         5 => 'NOTICE',
         6 => 'INFO',
-        7 => 'DEBUG',
+        7 => 'DEBUG'
     ];
 
     /**
@@ -64,7 +64,7 @@ class Logger
      * Log timestamp format
      * @var string
      */
-    protected $timestamp = 'Y-m-d H:i:s';
+    protected $timestampFormat = 'Y-m-d H:i:s';
 
     /**
      * Constructor
@@ -72,10 +72,13 @@ class Logger
      * Instantiate the logger object
      *
      * @param  Writer\WriterInterface $writer
-     * @return Logger
+     * @param  string                 $timestampFormat
      */
-    public function __construct(Writer\WriterInterface $writer = null)
+    public function __construct(Writer\WriterInterface $writer = null, $timestampFormat = 'Y-m-d H:i:s')
     {
+        if (null !== $timestampFormat) {
+            $this->setTimestampFormat($timestampFormat);
+        }
         if (null !== $writer) {
             $this->addWriter($writer);
         }
@@ -109,9 +112,9 @@ class Logger
      * @param  string $format
      * @return Logger
      */
-    public function setTimestamp($format = 'Y-m-d H:i:s')
+    public function setTimestampFormat($format = 'Y-m-d H:i:s')
     {
-        $this->timestamp = $format;
+        $this->timestampFormat = $format;
         return $this;
     }
 
@@ -120,41 +123,21 @@ class Logger
      *
      * @return string
      */
-    public function getTimestamp()
+    public function getTimestampFormat()
     {
-        return $this->timestamp;
+        return $this->timestampFormat;
     }
 
     /**
-     * Add a log entry
-     *
-     * @param  mixed $level
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
-     */
-    public function log($level, $message, array $context = [])
-    {
-        $context['timestamp'] = date($this->timestamp);
-        $context['name']      = $this->levels[$level];
-
-        foreach ($this->writers as $writer) {
-            $writer->writeLog($level, (string)$message, $context);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add an EMERG log entry
+     * Add an EMERGENCY log entry
      *
      * @param  mixed $message
      * @param  array $context
      * @return Logger
      */
-    public function emerg($message, array $context = [])
+    public function emergency($message, array $context = [])
     {
-        return $this->log(self::EMERG, $message, $context);
+        return $this->log(self::EMERGENCY, $message, $context);
     }
 
     /**
@@ -170,39 +153,39 @@ class Logger
     }
 
     /**
-     * Add a CRIT log entry
+     * Add a CRITICAL log entry
      *
      * @param  mixed $message
      * @param  array $context
      * @return Logger
      */
-    public function crit($message, array $context = [])
+    public function critical($message, array $context = [])
     {
-        return $this->log(self::CRIT, $message, $context);
+        return $this->log(self::CRITICAL, $message, $context);
     }
 
     /**
-     * Add an ERR log entry
+     * Add an ERROR log entry
      *
      * @param  mixed $message
      * @param  array $context
      * @return Logger
      */
-    public function err($message, array $context = [])
+    public function error($message, array $context = [])
     {
-        return $this->log(self::ERR, $message, $context);
+        return $this->log(self::ERROR, $message, $context);
     }
 
     /**
-     * Add a WARN log entry
+     * Add a WARNING log entry
      *
      * @param  mixed $message
      * @param  array $context
      * @return Logger
      */
-    public function warn($message, array $context = [])
+    public function warning($message, array $context = [])
     {
-        return $this->log(self::WARN, $message, $context);
+        return $this->log(self::WARNING, $message, $context);
     }
 
     /**
@@ -242,15 +225,20 @@ class Logger
     }
 
     /**
-     * Write a custom log entry
+     * Add a log entry
      *
-     * @param  string $content
+     * @param  mixed $level
+     * @param  mixed $message
+     * @param  array $context
      * @return Logger
      */
-    public function customLog($content)
+    public function log($level, $message, array $context = [])
     {
+        $context['timestamp'] = date($this->timestampFormat);
+        $context['name']      = $this->levels[$level];
+
         foreach ($this->writers as $writer) {
-            $writer->writeCustomLog($content);
+            $writer->writeLog($level, (string)$message, $context);
         }
 
         return $this;

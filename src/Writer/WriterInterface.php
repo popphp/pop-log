@@ -17,11 +17,11 @@ namespace Pop\Log\Writer;
  * Log writer interface
  *
  * @category   Pop
- * @package    Pop_Log
+ * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.2.0
+ * @version    3.0.0
  */
 interface WriterInterface
 {
@@ -35,14 +35,6 @@ interface WriterInterface
      * @return WriterInterface
      */
     public function writeLog($level, $message, array $context = []);
-
-    /**
-     * Write to a custom log
-     *
-     * @param  string $content
-     * @return WriterInterface
-     */
-    public function writeCustomLog($content);
 
     /**
      * Determine
