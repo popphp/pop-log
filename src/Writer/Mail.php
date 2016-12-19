@@ -46,7 +46,6 @@ class Mail extends AbstractWriter
      * @param  mixed $emails
      * @param  array $options
      * @throws Exception
-     * @return Mail
      */
     public function __construct($emails, array $options = [])
     {
@@ -94,29 +93,6 @@ class Mail extends AbstractWriter
         $entry = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
 
         $mail->setText($entry)
-             ->send();
-
-        return $this;
-    }
-
-    /**
-     * Write to a custom log
-     *
-     * @param  string $content
-     * @return Mail
-     */
-    public function writeCustomLog($content)
-    {
-        $subject = (isset($this->options['subject'])) ?
-            $this->options['subject'] :
-            'Custom Log Entry';
-
-        $mail = new \Pop\Mail\Mail($subject, $this->emails);
-        if (isset($this->options['headers'])) {
-            $mail->setHeaders($this->options['headers']);
-        }
-
-        $mail->setText($content . PHP_EOL)
              ->send();
 
         return $this;

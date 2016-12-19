@@ -46,7 +46,6 @@ class Db extends AbstractWriter
      * @param  \Pop\Db\Sql $sql
      * @param  string      $table
      * @throws Exception
-     * @return Db
      */
     public function __construct(\Pop\Db\Sql $sql, $table = null)
     {
@@ -80,48 +79,6 @@ class Db extends AbstractWriter
             'name'      => $context['name'],
             'message'   => $message,
             'context'   => $this->getContext($context)
-        ];
-
-        $columns = [];
-        $params  = [];
-
-        $i = 1;
-        foreach ($fields as $column => $value) {
-            $placeholder = $this->sql->getPlaceholder();
-
-            if ($placeholder == ':') {
-                $placeholder .= $column;
-            } else if ($placeholder == '$') {
-                $placeholder .= $i;
-            }
-            $columns[$column] = $placeholder;
-            $params[$column]  = $value;
-            $i++;
-        }
-
-        $this->sql->insert($columns);
-        $this->sql->db()
-            ->prepare((string)$this->sql)
-            ->bindParams($params)
-            ->execute();
-
-        return $this;
-    }
-
-    /**
-     * Write to a custom log
-     *
-     * @param  string $content
-     * @return Db
-     */
-    public function writeCustomLog($content)
-    {
-        $fields = [
-            'timestamp' => date('Y-m-d H:i:s'),
-            'level'     => -1,
-            'name'      => 'CUSTOM',
-            'message'   => $content,
-            'context'   => ''
         ];
 
         $columns = [];
