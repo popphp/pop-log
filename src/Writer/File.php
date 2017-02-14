@@ -33,6 +33,12 @@ class File extends AbstractWriter
     protected $file = null;
 
     /**
+     * Log file type
+     * @var string
+     */
+    protected $type = null;
+
+    /**
      * Constructor
      *
      * Instantiate the file writer object
@@ -45,7 +51,10 @@ class File extends AbstractWriter
             touch($file);
         }
 
-        $this->file  = $file;
+        $parts = pathinfo($file);
+
+        $this->file = $file;
+        $this->type = (isset($parts['extension']) && !empty($parts['extension'])) ? $parts['extension'] : null;
     }
 
     /**
@@ -58,21 +67,23 @@ class File extends AbstractWriter
      */
     public function writeLog($level, $message, array $context = [])
     {
-        $ext = substr($this->file, -4);
-        switch ($ext) {
-            case '.csv':
+        $ext = (strtolower(substr($this->file, -5)) == '.json') ?
+            '.json' : strtolower(substr($this->file, -4));
+
+        switch ($this->type) {
+            case 'csv':
                 $message = '"' . str_replace('"', '\"', $message) . '"' ;
                 $entry   = $context['timestamp'] . "," . $level . "," . $context['name'] . "," . $message . "," . $this->getContext($context) . PHP_EOL;
                 file_put_contents($this->file, $entry, FILE_APPEND);
                 break;
 
-            case '.tsv':
+            case 'tsv':
                 $message = '"' . str_replace('"', '\"', $message) . '"' ;
                 $entry   = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
                 file_put_contents($this->file, $entry, FILE_APPEND);
                 break;
 
-            case '.xml':
+            case 'xml':
                 $output = file_get_contents($this->file);
                 if (strpos($output, '<?xml version') === false) {
                     $output = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL . '<log>' . PHP_EOL . '</log>' . PHP_EOL;
@@ -86,6 +97,24 @@ class File extends AbstractWriter
 
                 $output = str_replace('</log>' . PHP_EOL, $entry . '</log>' . PHP_EOL, $output);
                 file_put_contents($this->file, $output);
+                break;
+
+            case 'json':
+                $output = file_get_contents($this->file);
+                $json = (strpos($output, '{') !== false) ?
+                    json_decode($output, true) : [];
+
+                $messageContext = $this->getContext($context);
+
+                $json[] = [
+                    'timestamp' => $context['timestamp'],
+                    'priority'  => $level,
+                    'name'      => $context['name'],
+                    'message'   => $message,
+                    'context'   => $messageContext
+                ];
+
+                file_put_contents($this->file, json_encode($json, JSON_PRETTY_PRINT));
                 break;
 
             default:

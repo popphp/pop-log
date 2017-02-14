@@ -22,7 +22,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "5.5.*",
-        "popphp/pop-db": "4.0.*"
+        "popphp/pop-db": "4.0.*",
+        "popphp/pop-mail": "3.0.*"
 
     },
     "autoload": {

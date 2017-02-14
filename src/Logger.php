@@ -85,6 +85,20 @@ class Logger
     }
 
     /**
+     * Add log writers
+     *
+     * @param  array $writers
+     * @return Logger
+     */
+    public function addWriters(array $writers)
+    {
+        foreach ($writers as $writer) {
+            $this->addWriter($writer);
+        }
+        return $this;
+    }
+
+    /**
      * Add a log writer
      *
      * @param  Writer\WriterInterface $writer

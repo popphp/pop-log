@@ -13,6 +13,8 @@
  */
 namespace Pop\Log\Writer;
 
+use Pop\Db\Adapter\AbstractAdapter;
+
 /**
  * Db log writer class
  *
@@ -27,10 +29,16 @@ class Db extends AbstractWriter
 {
 
     /**
-     * Sql object
-     * @var \Pop\Db\Sql
+     * DB adapter
+     * @var AbstractAdapter
      */
-    protected $sql = null;
+    protected $db = null;
+
+    /**
+     * Table
+     * @var string
+     */
+    protected $table = 'pop_log';
 
     /**
      * Constructor
@@ -42,23 +50,17 @@ class Db extends AbstractWriter
      *     level      INT
      *     name       VARCHAR
      *     message    TEXT, VARCHAR, etc.
+     *     context    TEXT, VARCHAR, etc.
      *
-     * @param  \Pop\Db\Sql $sql
-     * @param  string      $table
-     * @throws Exception
+     * @param  AbstractAdapter $db
+     * @param  string          $table
      */
-    public function __construct(\Pop\Db\Sql $sql, $table = null)
+    public function __construct(AbstractAdapter $db, $table = 'pop_log')
     {
-        if (null !== $table) {
-            $sql->setTable($table);
-        }
-        if (null === $sql->getTable()) {
-            throw new Exception('Error: The SQL object does not have a table defined.');
-        }
+        $this->db    = $db;
+        $this->table = $table;
 
-        $this->sql = $sql;
-
-        if (!in_array($sql->getTable(), $sql->db()->getTables())) {
+        if (!$db->hasTable($this->table)) {
             $this->createTable();
         }
     }
@@ -73,6 +75,7 @@ class Db extends AbstractWriter
      */
     public function writeLog($level, $message, array $context = [])
     {
+        $sql    = $this->db->createSql();
         $fields = [
             'timestamp' => $context['timestamp'],
             'level'     => $level,
@@ -86,7 +89,7 @@ class Db extends AbstractWriter
 
         $i = 1;
         foreach ($fields as $column => $value) {
-            $placeholder = $this->sql->getPlaceholder();
+            $placeholder = $sql->getPlaceholder();
 
             if ($placeholder == ':') {
                 $placeholder .= $column;
@@ -98,9 +101,9 @@ class Db extends AbstractWriter
             $i++;
         }
 
-        $this->sql->insert($columns);
-        $this->sql->db()
-            ->prepare((string)$this->sql)
+        $sql->insert($this->table)->values($columns);
+
+        $this->db->prepare((string)$sql)
             ->bindParams($params)
             ->execute();
 
@@ -114,16 +117,18 @@ class Db extends AbstractWriter
      */
     protected function createTable()
     {
-        if (file_exists(__DIR__ . '/Sql/' . strtolower($this->sql->getDbType()) . '.sql')) {
+        $sql = $this->db->createSql();
+
+        if (file_exists(__DIR__ . '/Sql/' . strtolower($sql->getDbType()) . '.sql')) {
             $sql = str_replace(
                 '[{table}]',
-                $this->sql->getTable(),
-                file_get_contents(__DIR__ . '/Sql/' . strtolower($this->sql->getDbType()) . '.sql')
+                $this->table,
+                file_get_contents(__DIR__ . '/Sql/' . strtolower($sql->getDbType()) . '.sql')
             );
             $queries = explode(';', $sql);
             foreach ($queries as $query) {
                 if (!empty($query) && ($query != '')) {
-                    $this->sql->db()->query($query);
+                    $this->db->query($query);
                 }
             }
         }

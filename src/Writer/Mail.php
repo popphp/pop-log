@@ -13,6 +13,10 @@
  */
 namespace Pop\Log\Writer;
 
+use Pop\Mail\Mailer;
+use Pop\Mail\Message;
+use Pop\Mail\Queue;
+
 /**
  * Mail log writer class
  *
@@ -27,10 +31,16 @@ class Mail extends AbstractWriter
 {
 
     /**
-     * Array of emails in which to send the log messages
-     * @var array
+     * Mailer object
+     * @var Mailer
      */
-    protected $emails = [];
+    protected $mailer = null;
+
+    /**
+     * List of emails in which to send the log messages
+     * @var mixed
+     */
+    protected $emails = null;
 
     /**
      * Array of mail-specific options, i.e. subject, headers, etc.
@@ -43,30 +53,16 @@ class Mail extends AbstractWriter
      *
      * Instantiate the Mail writer object
      *
-     * @param  mixed $emails
-     * @param  array $options
+     * @param  Mailer $mailer
+     * @param  mixed  $emails
+     * @param  array  $options
      * @throws Exception
      */
-    public function __construct($emails, array $options = [])
+    public function __construct(Mailer $mailer, $emails, array $options = [])
     {
+        $this->mailer  = $mailer;
         $this->options = $options;
-
-        if (!is_array($emails)) {
-            $emails = [$emails];
-        }
-
-        foreach ($emails as $key => $value) {
-            if (!is_numeric($key)) {
-                $this->emails[] = [
-                    'name'  => $key,
-                    'email' => $value
-                ];
-            } else {
-                $this->emails[] = [
-                    'email' => $value
-                ];
-            }
-        }
+        $this->emails  = $emails;
     }
 
     /**
@@ -80,20 +76,47 @@ class Mail extends AbstractWriter
     public function writeLog($level, $message, array $context = [])
     {
         $subject = (isset($this->options['subject'])) ?
-            $this->options['subject'] :
-            'Log Entry:';
+            $this->options['subject'] : 'Log Entry:';
 
         $subject .= ' ' . $context['name'] . ' (' . $level . ')';
 
-        $mail = new \Pop\Mail\Mail($subject, $this->emails);
+        $queue   = new Queue($this->emails);
+        $message = new Message($subject);
+
         if (isset($this->options['headers'])) {
-            $mail->setHeaders($this->options['headers']);
+            foreach ($this->options['headers'] as $header => $value) {
+                switch (strtolower($header)) {
+                    case 'cc':
+                        $message->setCc($value);
+                        break;
+                    case 'bcc':
+                        $message->setBcc($value);
+                        break;
+                    case 'from':
+                        $message->setFrom($value);
+                        break;
+                    case 'reply-to':
+                        $message->setReplyTo($value);
+                        break;
+                    case 'sender':
+                        $message->setSender($value);
+                        break;
+                    case 'return-path':
+                        $message->setReturnPath($value);
+                        break;
+                    default:
+                        $message->addHeader($header, $value);
+                }
+            }
         }
 
-        $entry = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
+        $message->setBody(
+            $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" .
+            $message . "\t" . $this->getContext($context) . PHP_EOL
+        );
 
-        $mail->setText($entry)
-             ->send();
+        $queue->addMessage($message);
+        $this->mailer->sendFromQueue($queue);
 
         return $this;
     }
