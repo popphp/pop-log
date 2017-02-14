@@ -16,22 +16,33 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertFileExists(__DIR__ . '/tmp/test.log');
     }
 
+    public function testAddWriters()
+    {
+        $db     = \Pop\Db\Db::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
+        $logger = new Logger();
+        $logger->addWriters([
+            new Writer\File(__DIR__ . '/tmp/test.log'),
+            new Writer\Db($db, 'logs')
+        ]);
+        $this->assertEquals(2, count($logger->getWriters()));
+    }
+
     public function testSetTimestamp()
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
-        $logger->setTimestamp('m/d/Y');
-        $this->assertEquals('m/d/Y', $logger->getTimestamp());
+        $logger->setTimestampFormat('m/d/Y');
+        $this->assertEquals('m/d/Y', $logger->getTimestampFormat());
     }
 
     public function testLog()
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $logger->log(Logger::ALERT, 'This is an alert.')
-               ->emerg('This is an emergency.')
+               ->emergency('This is an emergency.')
                ->alert('This is an alert #2.')
-               ->crit('This is a critical warning.')
-               ->err('This is an error.')
-               ->warn('This is a warning.')
+               ->critical('This is a critical warning.')
+               ->error('This is an error.')
+               ->warning('This is a warning.')
                ->notice('This is a notice.')
                ->info('This is an info.')
                ->debug('This is a debug.');
@@ -49,18 +60,6 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('This is a debug.', $log);
 
         unlink(__DIR__ . '/tmp/test.log');
-    }
-
-    public function testCustomLog()
-    {
-        $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.custom.log'));
-
-        $logger->customLog('This is a custom log test.');
-
-        $this->assertFileExists(__DIR__ . '/tmp/test.custom.log');
-        $this->assertContains('This is a custom log test.', file_get_contents(__DIR__ . '/tmp/test.custom.log'));
-
-        unlink(__DIR__ . '/tmp/test.custom.log');
     }
 
     public function testTextContext()

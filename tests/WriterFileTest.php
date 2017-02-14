@@ -15,26 +15,6 @@ class WriterFileTest extends \PHPUnit_Framework_TestCase
         unlink(__DIR__ . '/tmp/test.log');
     }
 
-    public function testConstructorSetAllowedTypes()
-    {
-        $writer = new File(__DIR__ . '/test.txt', [
-            'csv' => 'text/csv',
-            'txt' => 'text/plain'
-        ]);
-        $this->assertInstanceOf('Pop\Log\Writer\File', $writer);
-        $this->assertFileExists(__DIR__ . '/test.txt');
-        unlink(__DIR__ . '/test.txt');
-    }
-
-    public function testConstructorTypeException()
-    {
-        $this->setExpectedException('Pop\Log\Writer\Exception');
-        $writer = new File(__DIR__ . '/tmp/test.log', [
-            'csv' => 'text/csv',
-            'txt' => 'text/plain'
-        ]);
-    }
-
     public function testCsv()
     {
         if (file_exists(__DIR__ . '/tmp/test.log')) {
@@ -75,6 +55,19 @@ class WriterFileTest extends \PHPUnit_Framework_TestCase
         $this->assertFileExists(__DIR__ . '/tmp/test.xml');
         $this->assertContains('This is an XML test.', file_get_contents(__DIR__ . '/tmp/test.xml'));
         unlink(__DIR__ . '/tmp/test.xml');
+    }
+
+    public function testJson()
+    {
+        $writer = new File(__DIR__ . '/tmp/test.json');
+        $writer->writeLog(5, 'This is an JSON test.', [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'name'      => 'NOTICE'
+        ]);
+
+        $this->assertFileExists(__DIR__ . '/tmp/test.json');
+        $this->assertContains('This is an JSON test.', file_get_contents(__DIR__ . '/tmp/test.json'));
+        unlink(__DIR__ . '/tmp/test.json');
     }
 
 }

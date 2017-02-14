@@ -37,10 +37,10 @@ class Mail extends AbstractWriter
     protected $mailer = null;
 
     /**
-     * List of emails in which to send the log messages
-     * @var mixed
+     * Emails to which to send the log messages
+     * @var array
      */
-    protected $emails = null;
+    protected $emails = [];
 
     /**
      * Array of mail-specific options, i.e. subject, headers, etc.
@@ -62,7 +62,14 @@ class Mail extends AbstractWriter
     {
         $this->mailer  = $mailer;
         $this->options = $options;
-        $this->emails  = $emails;
+
+        if (is_array($emails)) {
+            foreach ($emails as $email) {
+                $this->emails[] = ['email' => $email];
+            }
+        } else if (is_string($emails)) {
+            $this->emails[] = ['email' => $emails];
+        }
     }
 
     /**
@@ -80,42 +87,42 @@ class Mail extends AbstractWriter
 
         $subject .= ' ' . $context['name'] . ' (' . $level . ')';
 
-        $queue   = new Queue($this->emails);
-        $message = new Message($subject);
+        $queue       = new Queue($this->emails);
+        $mailMessage = new Message($subject);
 
         if (isset($this->options['headers'])) {
             foreach ($this->options['headers'] as $header => $value) {
                 switch (strtolower($header)) {
                     case 'cc':
-                        $message->setCc($value);
+                        $mailMessage->setCc($value);
                         break;
                     case 'bcc':
-                        $message->setBcc($value);
+                        $mailMessage->setBcc($value);
                         break;
                     case 'from':
-                        $message->setFrom($value);
+                        $mailMessage->setFrom($value);
                         break;
                     case 'reply-to':
-                        $message->setReplyTo($value);
+                        $mailMessage->setReplyTo($value);
                         break;
                     case 'sender':
-                        $message->setSender($value);
+                        $mailMessage->setSender($value);
                         break;
                     case 'return-path':
-                        $message->setReturnPath($value);
+                        $mailMessage->setReturnPath($value);
                         break;
                     default:
-                        $message->addHeader($header, $value);
+                        $mailMessage->addHeader($header, $value);
                 }
             }
         }
 
-        $message->setBody(
+        $mailMessage->setBody(
             $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" .
             $message . "\t" . $this->getContext($context) . PHP_EOL
         );
 
-        $queue->addMessage($message);
+        $queue->addMessage($mailMessage);
         $this->mailer->sendFromQueue($queue);
 
         return $this;
