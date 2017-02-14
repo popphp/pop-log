@@ -19,11 +19,11 @@ available log message severity values are:
 
 and are available via their respective methods:
 
-* $log->emerg($message);
+* $log->emergency($message);
 * $log->alert($message);
-* $log->crit($message);
-* $log->err($message);
-* $log->warn($message);
+* $log->critical($message);
+* $log->error($message);
+* $log->warning($message);
 * $log->notice($message);
 * $log->info($message);
 * $log->debug($message);
@@ -67,8 +67,10 @@ Here's an example using email, which requires you to install `popphp/pop-mail`:
 ```php
 use Pop\Log\Logger;
 use Pop\Log\Writer;
+use Pop\Mail;
 
-$log = new Logger(new Writer\Mail([
+$mailer = new Mail\Mailer(new Mail\Transport\Sendmail());
+$log    = new Logger(new Writer\Mail($mailer, [
     'sysadmin@mydomain.com', 'logs@mydomain.com'
 ]));
 
@@ -92,14 +94,11 @@ Writing a log to a table in a database requires you to install `popphp/pop-db`:
 
 ```php
 use Pop\Db\Db;
-use Pop\Db\Sql;
 use Pop\Log\Logger;
 use Pop\Log\Writer;
 
 $db  = Db::connent('sqlite', __DIR__ . '/logs/.htapplog.sqlite');
-$sql = new Sql($db);
-
-$log = new Logger(new Writer\Db($sql, 'system_logs'));
+$log = new Logger(new Writer\Db($db, 'system_logs'));
 
 $log->info('Just a info message.');
 $log->alert('Look Out! Something serious happened!');
@@ -113,16 +112,3 @@ your database table would look like this:
 |----|---------------------|----------|-------|---------------------------------------|
 | 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
 | 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
-
-### Custom logging
-
-You can also write a non-standard, custom log that is specific to your app:
-
-```php
-use Pop\Log\Logger;
-use Pop\Log\Writer;
-
-$log = new Logger(new Writer\File(__DIR__ . '/logs/app.log'));
-
-$log->customLog('This is a custom log.');
-```
