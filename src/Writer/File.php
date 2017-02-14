@@ -67,10 +67,7 @@ class File extends AbstractWriter
      */
     public function writeLog($level, $message, array $context = [])
     {
-        $ext = (strtolower(substr($this->file, -5)) == '.json') ?
-            '.json' : strtolower(substr($this->file, -4));
-
-        switch ($this->type) {
+        switch (strtolower($this->type)) {
             case 'csv':
                 $message = '"' . str_replace('"', '\"', $message) . '"' ;
                 $entry   = $context['timestamp'] . "," . $level . "," . $context['name'] . "," . $message . "," . $this->getContext($context) . PHP_EOL;
