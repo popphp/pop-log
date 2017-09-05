@@ -34,6 +34,12 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('m/d/Y', $logger->getTimestampFormat());
     }
 
+    public function testGetLevel()
+    {
+        $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
+        $this->assertEquals('EMERGENCY', $logger->getLevel(Logger::EMERGENCY));
+    }
+
     public function testLog()
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));

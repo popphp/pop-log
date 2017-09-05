@@ -143,6 +143,17 @@ class Logger
     }
 
     /**
+     * Get level
+     *
+     * @param  int $level
+     * @return string
+     */
+    public function getLevel($level)
+    {
+        return (isset($this->levels[(int)$level])) ? $this->levels[(int)$level] : '';
+    }
+
+    /**
      * Add an EMERGENCY log entry
      *
      * @param  mixed $message
