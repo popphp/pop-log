@@ -4,8 +4,9 @@ namespace Pop\Log\Test;
 
 use Pop\Log\Writer;
 use Pop\Db\Db;
+use PHPUnit\Framework\TestCase;
 
-class WriterDbTest extends \PHPUnit_Framework_TestCase
+class WriterDbTest extends TestCase
 {
 
     public function testConstructor()

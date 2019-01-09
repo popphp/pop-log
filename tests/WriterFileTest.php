@@ -3,8 +3,9 @@
 namespace Pop\Log\Test;
 
 use Pop\Log\Writer\File;
+use PHPUnit\Framework\TestCase;
 
-class WriterFileTest extends \PHPUnit_Framework_TestCase
+class WriterFileTest extends TestCase
 {
 
     public function testConstructor()

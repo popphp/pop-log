@@ -4,8 +4,9 @@ namespace Pop\Log\Test;
 
 use Pop\Log\Writer;
 use Pop\Mail;
+use PHPUnit\Framework\TestCase;
 
-class WriterMailTest extends \PHPUnit_Framework_TestCase
+class WriterMailTest extends TestCase
 {
 
     public function testConstructor()
@@ -26,6 +27,8 @@ class WriterMailTest extends \PHPUnit_Framework_TestCase
             'timestamp' => date('Y-m-d H:i:s'),
             'name'      => 'NOTICE'
         ]);
+
+        $this->assertInstanceOf('Pop\Log\Writer\Mail', $writer);
     }
 
 }
