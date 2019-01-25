@@ -21,7 +21,7 @@ namespace Pop\Log;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.0.3
+ * @version    3.1.0
  */
 class Logger
 {
@@ -71,16 +71,21 @@ class Logger
      *
      * Instantiate the logger object
      *
-     * @param  Writer\WriterInterface $writer
+     * @param  Writer\WriterInterface|array $writer
      * @param  string                 $timestampFormat
      */
-    public function __construct(Writer\WriterInterface $writer = null, $timestampFormat = 'Y-m-d H:i:s')
+    public function __construct($writer = null, $timestampFormat = 'Y-m-d H:i:s')
     {
         if (null !== $timestampFormat) {
             $this->setTimestampFormat($timestampFormat);
         }
+
         if (null !== $writer) {
-            $this->addWriter($writer);
+            if (is_array($writer)) {
+                $this->addWriters($writer);
+            } else {
+                $this->addWriter($writer);
+            }
         }
     }
 
@@ -259,8 +264,12 @@ class Logger
      */
     public function log($level, $message, array $context = [])
     {
-        $context['timestamp'] = date($this->timestampFormat);
-        $context['name']      = $this->levels[$level];
+        if (!isset($context['timestamp'])) {
+            $context['timestamp'] = date($this->timestampFormat);
+        }
+        if (!isset($context['name'])) {
+            $context['name'] = $this->levels[$level];
+        }
 
         foreach ($this->writers as $writer) {
             $writer->writeLog($level, (string)$message, $context);
