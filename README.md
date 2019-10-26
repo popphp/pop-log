@@ -118,7 +118,7 @@ use Pop\Db\Db;
 use Pop\Log\Logger;
 use Pop\Log\Writer;
 
-$db  = Db::connent('sqlite', __DIR__ . '/logs/.htapplog.sqlite');
+$db  = Db::connect('sqlite', __DIR__ . '/logs/.htapplog.sqlite');
 $log = new Logger(new Writer\Db($db, 'system_logs'));
 
 $log->info('Just a info message.');
