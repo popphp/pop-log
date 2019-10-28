@@ -43,7 +43,7 @@ Install `pop-log` using Composer.
 BASIC USAGE
 -----------
 
-### Using a log file
+### Using a Log File
 
 Setting up and using a log file is pretty simple. Plain text is the default,
 but there is also support for CSV, TSV and XML formats:
@@ -63,7 +63,7 @@ Then, your 'app.log' file will contain:
     2015-07-11 12:32:32    6    INFO    Just a info message.
     2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
 
-### Using email
+### Using Email
 
 Here's an example using email, which requires you to install `popphp/pop-mail`:
 
@@ -91,7 +91,7 @@ and
     Subject: Log Entry: ALERT (1)
     2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
 
-### Using an HTTP service
+### Using an HTTP Service
 
 Here's an example using an HTTP service:
 
@@ -109,7 +109,7 @@ $log->alert('Look Out! Something serious happened!');
 
 The log writer will send HTTP requests with the log data to the HTTP service.
 
-### Using a database table
+### Using a Database Table
 
 Writing a log to a table in a database requires you to install `popphp/pop-db`:
 
