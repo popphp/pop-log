@@ -133,3 +133,36 @@ your database table would look like this:
 |----|---------------------|----------|-------|---------------------------------------|
 | 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
 | 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
+
+### Setting Log Limits
+
+Log level limits can be set for the log writer objects to enforce the severity of
+which log messages actually get logged:
+
+```php
+use Pop\Log\Logger;
+use Pop\Log\Writer;
+
+$prodLog = new Writer\File(__DIR__ . '/logs/app_prod.log');
+$devLog  = new Writer\File(__DIR__ . '/logs/app_dev.log');
+
+$prodLog->setLogLimit(3); // Log only ERROR (3) and above
+$devLog->setLogLimit(6);  // Log only INFO (6) and above
+
+$log = new Logger([$prodLog, $devLog]);
+
+$log->alert('Look Out! Something serious happened!'); // Will write to both writers
+$log->info('Just a info message.');                   // Will write to only app_dev.log
+
+```
+
+The `app_prod.log` file will contain:
+
+    2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+
+And the `app_dev.log` file will contain:
+
+    2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+    2015-07-11 12:32:34    6    INFO    Just a info message.
+
+
