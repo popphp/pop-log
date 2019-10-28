@@ -57,21 +57,23 @@ class Http extends AbstractWriter
      */
     public function writeLog($level, $message, array $context = [])
     {
-        $timestamp = $context['timestamp'];
-        $name      = $context['name'];
+        if ($this->isWithinLogLimit($level)) {
+            $timestamp = $context['timestamp'];
+            $name      = $context['name'];
 
-        unset($context['timestamp']);
-        unset($context['name']);
+            unset($context['timestamp']);
+            unset($context['name']);
 
-        $this->stream->setFields([
-            'timestamp' => $timestamp,
-            'level'     => $level,
-            'name'      => $name,
-            'message'   => $message,
-            'context'   => json_encode($context)
-        ]);
+            $this->stream->setFields([
+                'timestamp' => $timestamp,
+                'level'     => $level,
+                'name'      => $name,
+                'message'   => $message,
+                'context'   => json_encode($context)
+            ]);
 
-        $this->stream->send();
+            $this->stream->send();
+        }
 
         return $this;
     }

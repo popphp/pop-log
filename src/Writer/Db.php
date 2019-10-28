@@ -75,37 +75,39 @@ class Db extends AbstractWriter
      */
     public function writeLog($level, $message, array $context = [])
     {
-        $sql    = $this->db->createSql();
-        $fields = [
-            'timestamp' => $context['timestamp'],
-            'level'     => $level,
-            'name'      => $context['name'],
-            'message'   => $message,
-            'context'   => $this->getContext($context)
-        ];
+        if ($this->isWithinLogLimit($level)) {
+            $sql    = $this->db->createSql();
+            $fields = [
+                'timestamp' => $context['timestamp'],
+                'level'     => $level,
+                'name'      => $context['name'],
+                'message'   => $message,
+                'context'   => $this->getContext($context)
+            ];
 
-        $columns = [];
-        $params  = [];
+            $columns = [];
+            $params  = [];
 
-        $i = 1;
-        foreach ($fields as $column => $value) {
-            $placeholder = $sql->getPlaceholder();
+            $i = 1;
+            foreach ($fields as $column => $value) {
+                $placeholder = $sql->getPlaceholder();
 
-            if ($placeholder == ':') {
-                $placeholder .= $column;
-            } else if ($placeholder == '$') {
-                $placeholder .= $i;
+                if ($placeholder == ':') {
+                    $placeholder .= $column;
+                } else if ($placeholder == '$') {
+                    $placeholder .= $i;
+                }
+                $columns[$column] = $placeholder;
+                $params[$column]  = $value;
+                $i++;
             }
-            $columns[$column] = $placeholder;
-            $params[$column]  = $value;
-            $i++;
+
+            $sql->insert($this->table)->values($columns);
+
+            $this->db->prepare((string)$sql)
+                ->bindParams($params)
+                ->execute();
         }
-
-        $sql->insert($this->table)->values($columns);
-
-        $this->db->prepare((string)$sql)
-            ->bindParams($params)
-            ->execute();
 
         return $this;
     }

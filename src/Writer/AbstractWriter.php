@@ -27,6 +27,67 @@ abstract class AbstractWriter implements WriterInterface
 {
 
     /**
+     * Log limit
+     * @var int
+     */
+    protected $limit = null;
+
+    /**
+     * Set log limit
+     *
+     * @param  int $level
+     * @return AbstractWriter
+     */
+    public function setLogLimit($level)
+    {
+        $level = (int)$level;
+
+        if (($level < 0) || ($level > 7)) {
+            throw new \InvalidArgumentException('Error: The level ' . $level . ' is an invalid level.');
+        }
+
+        $this->limit = $level;
+        return $this;
+    }
+
+    /**
+     * Get log limit
+     *
+     * @return int
+     */
+    public function getLogLimit()
+    {
+        return $this->limit;
+    }
+
+    /**
+     * Has log limit
+     *
+     * @return boolean
+     */
+    public function hasLogLimit()
+    {
+        return (null !== $this->limit);
+    }
+
+    /**
+     * Check if a log level is within the set log level limit
+     *
+     * @param  int $level
+     * @return boolean
+     */
+    public function isWithinLogLimit($level)
+    {
+        $level = (int)$level;
+
+        if (($level < 0) || ($level > 7)) {
+            throw new \InvalidArgumentException('Error: The level ' . $level . ' is an invalid level.');
+        }
+
+        return ((null === $this->limit) || ((null !== $this->limit) && ($level <= $this->limit)));
+    }
+
+    /**
      * Write to the log
      *
      * @param  mixed  $level

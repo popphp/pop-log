@@ -67,56 +67,65 @@ class File extends AbstractWriter
      */
     public function writeLog($level, $message, array $context = [])
     {
-        switch (strtolower($this->type)) {
-            case 'csv':
-                $message = '"' . str_replace('"', '\"', $message) . '"' ;
-                $entry   = $context['timestamp'] . "," . $level . "," . $context['name'] . "," . $message . "," . $this->getContext($context) . PHP_EOL;
-                file_put_contents($this->file, $entry, FILE_APPEND);
-                break;
+        if ($this->isWithinLogLimit($level)) {
+            switch (strtolower($this->type)) {
+                case 'csv':
+                    $message = '"' . str_replace('"', '\"', $message) . '"' ;
+                    $entry   = $context['timestamp'] . "," . $level . "," .
+                        $context['name'] . "," . $message . "," . $this->getContext($context) . PHP_EOL;
+                    file_put_contents($this->file, $entry, FILE_APPEND);
+                    break;
 
-            case 'tsv':
-                $message = '"' . str_replace('"', '\"', $message) . '"' ;
-                $entry   = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
-                file_put_contents($this->file, $entry, FILE_APPEND);
-                break;
+                case 'tsv':
+                    $message = '"' . str_replace('"', '\"', $message) . '"' ;
+                    $entry   = $context['timestamp'] . "\t" . $level . "\t" .
+                        $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
+                    file_put_contents($this->file, $entry, FILE_APPEND);
+                    break;
 
-            case 'xml':
-                $output = file_get_contents($this->file);
-                if (strpos($output, '<?xml version') === false) {
-                    $output = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL . '<log>' . PHP_EOL . '</log>' . PHP_EOL;
-                }
+                case 'xml':
+                    $output = file_get_contents($this->file);
+                    if (strpos($output, '<?xml version') === false) {
+                        $output = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL .
+                            '<log>' . PHP_EOL . '</log>' . PHP_EOL;
+                    }
 
-                $messageContext = $this->getContext($context);
+                    $messageContext = $this->getContext($context);
 
-                $entry  = ($messageContext != '') ?
-                    '    <entry timestamp="' . $context['timestamp'] . '" priority="' . $level . '" name="' . $context['name'] . '" context="' . $messageContext . '"><![CDATA[' . $message . ']]></entry>' . PHP_EOL :
-                    '    <entry timestamp="' . $context['timestamp'] . '" priority="' . $level . '" name="' . $context['name'] . '"><![CDATA[' . $message . ']]></entry>' . PHP_EOL;
+                    $entry  = ($messageContext != '') ?
+                        '    <entry timestamp="' . $context['timestamp'] . '" priority="' .
+                        $level . '" name="' . $context['name'] . '" context="' . $messageContext .
+                        '"><![CDATA[' . $message . ']]></entry>' . PHP_EOL :
+                        '    <entry timestamp="' . $context['timestamp'] . '" priority="' .
+                        $level . '" name="' . $context['name'] . '"><![CDATA[' . $message . ']]></entry>' . PHP_EOL;
 
-                $output = str_replace('</log>' . PHP_EOL, $entry . '</log>' . PHP_EOL, $output);
-                file_put_contents($this->file, $output);
-                break;
+                    $output = str_replace('</log>' . PHP_EOL, $entry . '</log>' . PHP_EOL, $output);
+                    file_put_contents($this->file, $output);
+                    break;
 
-            case 'json':
-                $output = file_get_contents($this->file);
-                $json = (strpos($output, '{') !== false) ?
-                    json_decode($output, true) : [];
+                case 'json':
+                    $output = file_get_contents($this->file);
+                    $json = (strpos($output, '{') !== false) ?
+                        json_decode($output, true) : [];
 
-                $messageContext = $this->getContext($context);
+                    $messageContext = $this->getContext($context);
 
-                $json[] = [
-                    'timestamp' => $context['timestamp'],
-                    'priority'  => $level,
-                    'name'      => $context['name'],
-                    'message'   => $message,
-                    'context'   => $messageContext
-                ];
+                    $json[] = [
+                        'timestamp' => $context['timestamp'],
+                        'priority'  => $level,
+                        'name'      => $context['name'],
+                        'message'   => $message,
+                        'context'   => $messageContext
+                    ];
 
-                file_put_contents($this->file, json_encode($json, JSON_PRETTY_PRINT));
-                break;
+                    file_put_contents($this->file, json_encode($json, JSON_PRETTY_PRINT));
+                    break;
 
-            default:
-                $entry = $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
-                file_put_contents($this->file, $entry, FILE_APPEND);
+                default:
+                    $entry = $context['timestamp'] . "\t" . $level . "\t" .
+                        $context['name'] . "\t" . $message . "\t" . $this->getContext($context) . PHP_EOL;
+                    file_put_contents($this->file, $entry, FILE_APPEND);
+            }
         }
 
         return $this;

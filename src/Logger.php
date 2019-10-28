@@ -126,6 +126,20 @@ class Logger
     }
 
     /**
+     * Set log level limit for all log writers
+     *
+     * @param  int $level
+     * @return Logger
+     */
+    public function setLogLimit($level)
+    {
+        foreach ($this->writers as $writer) {
+            $writer->setLogLimit($level);
+        }
+        return $this;
+    }
+
+    /**
      * Set timestamp format
      *
      * @param  string $format

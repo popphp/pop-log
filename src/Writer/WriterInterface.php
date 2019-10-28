@@ -27,6 +27,36 @@ interface WriterInterface
 {
 
     /**
+     * Set log limit
+     *
+     * @param  int $level
+     * @return WriterInterface
+     */
+    public function setLogLimit($level);
+
+    /**
+     * Get log limit
+     *
+     * @return int
+     */
+    public function getLogLimit();
+
+    /**
+     * Has log limit
+     *
+     * @return boolean
+     */
+    public function hasLogLimit();
+
+    /**
+     * Check if a log level is within the set log level limit
+     *
+     * @param  int $level
+     * @return boolean
+     */
+    public function isWithinLogLimit($level);
+
+    /**
      * Write to the log
      *
      * @param  mixed  $level
