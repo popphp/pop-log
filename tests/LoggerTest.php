@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class LoggerTest extends TestCase
 {
 
-    public function testConstructor()
+    public function testConstructor1()
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $this->assertInstanceOf('Pop\Log\Logger', $logger);
@@ -17,8 +17,26 @@ class LoggerTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/test.log');
     }
 
+    public function testConstructor2()
+    {
+        $log1 = new Writer\File(__DIR__ . '/tmp/test1.log');
+        $log2 = new Writer\File(__DIR__ . '/tmp/test2.log');
+        $logger = new Logger([$log1, $log2]);
+        $this->assertInstanceOf('Pop\Log\Logger', $logger);
+        $this->assertEquals(2, count($logger->getWriters()));
+        $this->assertFileExists(__DIR__ . '/tmp/test1.log');
+        $this->assertFileExists(__DIR__ . '/tmp/test2.log');
+        unlink(__DIR__ . '/tmp/test1.log');
+        unlink(__DIR__ . '/tmp/test2.log');
+    }
+
     public function testAddWriters()
     {
+        if (file_exists(__DIR__ . '/tmp/log.sqlite')) {
+            unlink(__DIR__ . '/tmp/log.sqlite');
+        }
+        touch(__DIR__ . '/tmp/log.sqlite');
+        chmod(__DIR__ . '/tmp/log.sqlite', 0777);
         $db     = \Pop\Db\Db::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
         $logger = new Logger();
         $logger->addWriters([
@@ -26,6 +44,9 @@ class LoggerTest extends TestCase
             new Writer\Db($db, 'logs')
         ]);
         $this->assertEquals(2, count($logger->getWriters()));
+        if (file_exists(__DIR__ . '/tmp/log.sqlite')) {
+            unlink(__DIR__ . '/tmp/log.sqlite');
+        }
     }
 
     public function testSetTimestamp()
@@ -33,6 +54,13 @@ class LoggerTest extends TestCase
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $logger->setTimestampFormat('m/d/Y');
         $this->assertEquals('m/d/Y', $logger->getTimestampFormat());
+    }
+
+    public function testSetLogLimit()
+    {
+        $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
+        $logger->setLogLimit(1);
+        $this->assertEquals(1, $logger->getWriters()[0]->getLogLimit());
     }
 
     public function testGetLevel()
@@ -94,6 +122,20 @@ class LoggerTest extends TestCase
         $this->assertContains('foo=[Array]', file_get_contents(__DIR__ . '/tmp/test.log'));
         $this->assertContains('bar=[Object]', file_get_contents(__DIR__ . '/tmp/test.log'));
 
+        unlink(__DIR__ . '/tmp/test.log');
+    }
+
+    public function testLogLimit()
+    {
+        if (file_exists(__DIR__ . '/tmp/test.log')) {
+            unlink(__DIR__ . '/tmp/test.log');
+        }
+        $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
+        $logger->setLogLimit(1);
+        $logger->alert('This is an alert!');
+        $logger->notice('This is a notice!');
+        $this->assertContains('This is an alert!', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertNotContains('This is a notice!', file_get_contents(__DIR__ . '/tmp/test.log'));
         unlink(__DIR__ . '/tmp/test.log');
     }
 

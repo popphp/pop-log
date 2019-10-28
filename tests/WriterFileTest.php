@@ -58,6 +58,21 @@ class WriterFileTest extends TestCase
         unlink(__DIR__ . '/tmp/test.xml');
     }
 
+    public function testXmlWithContext()
+    {
+        $writer = new File(__DIR__ . '/tmp/test.xml');
+        $writer->writeLog(5, 'This is an XML test.', [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'name'      => 'NOTICE',
+            'foo' => 'bar'
+        ]);
+
+        $this->assertFileExists(__DIR__ . '/tmp/test.xml');
+        $this->assertContains('This is an XML test.', file_get_contents(__DIR__ . '/tmp/test.xml'));
+        $this->assertContains('foo=bar;', file_get_contents(__DIR__ . '/tmp/test.xml'));
+        unlink(__DIR__ . '/tmp/test.xml');
+    }
+
     public function testJson()
     {
         $writer = new File(__DIR__ . '/tmp/test.json');
@@ -69,6 +84,41 @@ class WriterFileTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/test.json');
         $this->assertContains('This is an JSON test.', file_get_contents(__DIR__ . '/tmp/test.json'));
         unlink(__DIR__ . '/tmp/test.json');
+    }
+
+    public function testSetLogLimitException()
+    {
+        if (file_exists(__DIR__ . '/tmp/test.log')) {
+            unlink(__DIR__ . '/tmp/test.log');
+        }
+        $this->expectException('InvalidArgumentException');
+        $writer = new File(__DIR__ . '/tmp/test.log');
+        $writer->setLogLimit(8);
+    }
+
+    public function testIsWithinLogLimitException()
+    {
+        if (file_exists(__DIR__ . '/tmp/test.log')) {
+            unlink(__DIR__ . '/tmp/test.log');
+        }
+        $this->expectException('InvalidArgumentException');
+        $writer = new File(__DIR__ . '/tmp/test.log');
+        $writer->setLogLimit(1);
+        $this->assertFalse($writer->isWithinLogLimit(8));
+    }
+
+    public function testLogLimit1()
+    {
+        if (file_exists(__DIR__ . '/tmp/test.log')) {
+            unlink(__DIR__ . '/tmp/test.log');
+        }
+        $writer = new File(__DIR__ . '/tmp/test.log');
+        $writer->setLogLimit(1);
+        $this->assertTrue($writer->hasLogLimit());
+        $this->assertEquals(1, $writer->getLogLimit());
+        $this->assertTrue($writer->isWithinLogLimit(1));
+        $this->assertFalse($writer->isWithinLogLimit(3));
+        unlink(__DIR__ . '/tmp/test.log');
     }
 
 }

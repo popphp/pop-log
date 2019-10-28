@@ -113,27 +113,23 @@ class Db extends AbstractWriter
     }
 
     /**
-     * Create table in databse
+     * Create table in database
      *
      * @return void
      */
     protected function createTable()
     {
-        $sql = $this->db->createSql();
+        $schema = $this->db->createSchema();
+        $schema->create($this->table)
+            ->int('id')->increment()
+            ->datetime('timestamp')
+            ->int('level', 1)
+            ->varchar('name', 255)
+            ->text('message')
+            ->text('context')
+            ->primary('id');
 
-        if (file_exists(__DIR__ . '/Sql/' . strtolower($sql->getDbType()) . '.sql')) {
-            $sql = str_replace(
-                '[{table}]',
-                $this->table,
-                file_get_contents(__DIR__ . '/Sql/' . strtolower($sql->getDbType()) . '.sql')
-            );
-            $queries = explode(';', $sql);
-            foreach ($queries as $query) {
-                if (!empty($query) && ($query != '')) {
-                    $this->db->query($query);
-                }
-            }
-        }
+        $this->db->query($schema);
     }
 
 }

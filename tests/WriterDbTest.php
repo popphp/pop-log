@@ -11,9 +11,15 @@ class WriterDbTest extends TestCase
 
     public function testConstructor()
     {
+        if (file_exists(__DIR__ . '/tmp/log.sqlite')) {
+            unlink(__DIR__ . '/tmp/log.sqlite');
+        }
+        touch(__DIR__ . '/tmp/log.sqlite');
+        chmod(__DIR__ . '/tmp/log.sqlite', 0777);
         $db     = Db::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
         $writer = new Writer\Db($db, 'logs');
         $this->assertInstanceOf('Pop\Log\Writer\Db', $writer);
+        $this->assertContains('logs', $db->getTables());
     }
 
     public function testLog()
@@ -32,6 +38,9 @@ class WriterDbTest extends TestCase
             $rows[] = $row;
         }
         $this->assertEquals('This is a database test.', $rows[0]['message']);
+        if (file_exists(__DIR__ . '/tmp/log.sqlite')) {
+            unlink(__DIR__ . '/tmp/log.sqlite');
+        }
     }
 
 }
