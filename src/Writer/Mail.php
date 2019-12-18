@@ -56,7 +56,6 @@ class Mail extends AbstractWriter
      * @param  Mailer $mailer
      * @param  mixed  $emails
      * @param  array  $options
-     * @throws Exception
      */
     public function __construct(Mailer $mailer, $emails, array $options = [])
     {

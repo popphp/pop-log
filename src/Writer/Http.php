@@ -40,7 +40,6 @@ class Http extends AbstractWriter
      * Instantiate the Mail writer object
      *
      * @param  Stream $stream
-     * @throws Exception
      */
     public function __construct(Stream $stream)
     {
