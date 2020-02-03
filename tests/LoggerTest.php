@@ -67,6 +67,7 @@ class LoggerTest extends TestCase
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $this->assertEquals('EMERGENCY', $logger->getLevel(Logger::EMERGENCY));
+        $this->assertEquals('INFO', Logger::getLogLevel(6));
     }
 
     public function testLog()

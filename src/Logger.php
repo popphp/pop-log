@@ -173,6 +173,17 @@ class Logger
     }
 
     /**
+     * Static method to get log level
+     *
+     * @param  int $level
+     * @return string
+     */
+    public static function getLogLevel($level)
+    {
+        return (new self())->getLevel($level);
+    }
+
+    /**
      * Add an EMERGENCY log entry
      *
      * @param  mixed $message
