@@ -36,6 +36,9 @@
             "Pop\\Log\\Test\\": "tests/"
         }
     },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "3.3.x-dev"
