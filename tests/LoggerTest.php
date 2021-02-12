@@ -85,15 +85,15 @@ class LoggerTest extends TestCase
 
         $log = file_get_contents(__DIR__ . '/tmp/test.log');
 
-        $this->assertContains('This is an alert', $log);
-        $this->assertContains('This is an emergency.', $log);
-        $this->assertContains('This is an alert #2.', $log);
-        $this->assertContains('This is a critical warning.', $log);
-        $this->assertContains('This is an error.', $log);
-        $this->assertContains('This is a warning.', $log);
-        $this->assertContains('This is a notice.', $log);
-        $this->assertContains('This is an info.', $log);
-        $this->assertContains('This is a debug.', $log);
+        $this->assertStringContainsString('This is an alert', $log);
+        $this->assertStringContainsString('This is an emergency.', $log);
+        $this->assertStringContainsString('This is an alert #2.', $log);
+        $this->assertStringContainsString('This is a critical warning.', $log);
+        $this->assertStringContainsString('This is an error.', $log);
+        $this->assertStringContainsString('This is a warning.', $log);
+        $this->assertStringContainsString('This is a notice.', $log);
+        $this->assertStringContainsString('This is an info.', $log);
+        $this->assertStringContainsString('This is a debug.', $log);
 
         unlink(__DIR__ . '/tmp/test.log');
     }
@@ -102,7 +102,7 @@ class LoggerTest extends TestCase
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $logger->info('This is an info.', ['foo' => 'bar']);
-        $this->assertContains('foo=bar;', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertStringContainsString('foo=bar;', file_get_contents(__DIR__ . '/tmp/test.log'));
 
         unlink(__DIR__ . '/tmp/test.log');
     }
@@ -111,7 +111,7 @@ class LoggerTest extends TestCase
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $logger->info('This is an info.', ['foo' => 'bar', 'format' => 'json']);
-        $this->assertContains('{', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertStringContainsString('{', file_get_contents(__DIR__ . '/tmp/test.log'));
 
         unlink(__DIR__ . '/tmp/test.log');
     }
@@ -120,8 +120,8 @@ class LoggerTest extends TestCase
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
         $logger->info('This is an info.', ['foo' => [123], 'bar' => new \StdClass()]);
-        $this->assertContains('foo=[Array]', file_get_contents(__DIR__ . '/tmp/test.log'));
-        $this->assertContains('bar=[Object]', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertStringContainsString('foo=[Array]', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertStringContainsString('bar=[Object]', file_get_contents(__DIR__ . '/tmp/test.log'));
 
         unlink(__DIR__ . '/tmp/test.log');
     }
@@ -135,8 +135,8 @@ class LoggerTest extends TestCase
         $logger->setLogLimit(1);
         $logger->alert('This is an alert!');
         $logger->notice('This is a notice!');
-        $this->assertContains('This is an alert!', file_get_contents(__DIR__ . '/tmp/test.log'));
-        $this->assertNotContains('This is a notice!', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertStringContainsString('This is an alert!', file_get_contents(__DIR__ . '/tmp/test.log'));
+        $this->assertStringNotContainsString('This is a notice!', file_get_contents(__DIR__ . '/tmp/test.log'));
         unlink(__DIR__ . '/tmp/test.log');
     }
 

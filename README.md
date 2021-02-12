@@ -1,7 +1,7 @@
 pop-log
 =======
 
-[![Build Status](https://travis-ci.org/popphp/pop-log.svg?branch=master)](https://travis-ci.org/popphp/pop-log)
+[![Build Status](https://github.com/popphp/pop-log/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-log/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-log)](http://cc.popphp.org/pop-log/)
 
 OVERVIEW

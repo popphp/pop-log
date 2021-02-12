@@ -28,7 +28,7 @@ class WriterFileTest extends TestCase
         ]);
 
         $this->assertFileExists(__DIR__ . '/tmp/test.csv');
-        $this->assertContains('This is a CSV test.', file_get_contents(__DIR__ . '/tmp/test.csv'));
+        $this->assertStringContainsString('This is a CSV test.', file_get_contents(__DIR__ . '/tmp/test.csv'));
         unlink(__DIR__ . '/tmp/test.csv');
     }
 
@@ -41,7 +41,7 @@ class WriterFileTest extends TestCase
         ]);
 
         $this->assertFileExists(__DIR__ . '/tmp/test.tsv');
-        $this->assertContains('This is a TSV test.', file_get_contents(__DIR__ . '/tmp/test.tsv'));
+        $this->assertStringContainsString('This is a TSV test.', file_get_contents(__DIR__ . '/tmp/test.tsv'));
         unlink(__DIR__ . '/tmp/test.tsv');
     }
 
@@ -54,7 +54,7 @@ class WriterFileTest extends TestCase
         ]);
 
         $this->assertFileExists(__DIR__ . '/tmp/test.xml');
-        $this->assertContains('This is an XML test.', file_get_contents(__DIR__ . '/tmp/test.xml'));
+        $this->assertStringContainsString('This is an XML test.', file_get_contents(__DIR__ . '/tmp/test.xml'));
         unlink(__DIR__ . '/tmp/test.xml');
     }
 
@@ -68,8 +68,8 @@ class WriterFileTest extends TestCase
         ]);
 
         $this->assertFileExists(__DIR__ . '/tmp/test.xml');
-        $this->assertContains('This is an XML test.', file_get_contents(__DIR__ . '/tmp/test.xml'));
-        $this->assertContains('foo=bar;', file_get_contents(__DIR__ . '/tmp/test.xml'));
+        $this->assertStringContainsString('This is an XML test.', file_get_contents(__DIR__ . '/tmp/test.xml'));
+        $this->assertStringContainsString('foo=bar;', file_get_contents(__DIR__ . '/tmp/test.xml'));
         unlink(__DIR__ . '/tmp/test.xml');
     }
 
@@ -82,7 +82,7 @@ class WriterFileTest extends TestCase
         ]);
 
         $this->assertFileExists(__DIR__ . '/tmp/test.json');
-        $this->assertContains('This is an JSON test.', file_get_contents(__DIR__ . '/tmp/test.json'));
+        $this->assertStringContainsString('This is an JSON test.', file_get_contents(__DIR__ . '/tmp/test.json'));
         unlink(__DIR__ . '/tmp/test.json');
     }
 
