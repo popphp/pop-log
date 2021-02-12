@@ -11,6 +11,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      httpd:
+        image: httpd
+        ports:
+          - 80:80
+
     steps:
     - uses: actions/checkout@v2
 
