@@ -23,7 +23,7 @@ use Pop\Http\Client\Stream;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.1
+ * @version    3.3.2
  */
 class Http extends AbstractWriter
 {
