@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,15 +13,17 @@
  */
 namespace Pop\Log;
 
+use Pop\Log\Writer\WriterInterface;
+
 /**
  * Logger class
  *
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 class Logger
 {
@@ -43,7 +45,7 @@ class Logger
      * Message level short codes
      * @var array
      */
-    protected $levels = [
+    protected array $levels = [
         0 => 'EMERGENCY',
         1 => 'ALERT',
         2 => 'CRITICAL',
@@ -58,29 +60,29 @@ class Logger
      * Log writers
      * @var array
      */
-    protected $writers = [];
+    protected array $writers = [];
 
     /**
      * Log timestamp format
      * @var string
      */
-    protected $timestampFormat = 'Y-m-d H:i:s';
+    protected string $timestampFormat = 'Y-m-d H:i:s';
 
     /**
      * Constructor
      *
      * Instantiate the logger object
      *
-     * @param  Writer\WriterInterface|array $writer
+     * @param  WriterInterface|array|null $writer
      * @param  string                 $timestampFormat
      */
-    public function __construct($writer = null, $timestampFormat = 'Y-m-d H:i:s')
+    public function __construct(WriterInterface|array|null $writer = [], string $timestampFormat = 'Y-m-d H:i:s')
     {
-        if (null !== $timestampFormat) {
+        if ($timestampFormat !== null) {
             $this->setTimestampFormat($timestampFormat);
         }
 
-        if (null !== $writer) {
+        if ($writer !== null) {
             if (is_array($writer)) {
                 $this->addWriters($writer);
             } else {
@@ -95,7 +97,7 @@ class Logger
      * @param  array $writers
      * @return Logger
      */
-    public function addWriters(array $writers)
+    public function addWriters(array $writers): Logger
     {
         foreach ($writers as $writer) {
             $this->addWriter($writer);
@@ -109,7 +111,7 @@ class Logger
      * @param  Writer\WriterInterface $writer
      * @return Logger
      */
-    public function addWriter(Writer\WriterInterface $writer)
+    public function addWriter(Writer\WriterInterface $writer): Logger
     {
         $this->writers[] = $writer;
         return $this;
@@ -120,7 +122,7 @@ class Logger
      *
      * @return array
      */
-    public function getWriters()
+    public function getWriters(): array
     {
         return $this->writers;
     }
@@ -131,7 +133,7 @@ class Logger
      * @param  int $level
      * @return Logger
      */
-    public function setLogLimit($level)
+    public function setLogLimit(int $level): Logger
     {
         foreach ($this->writers as $writer) {
             $writer->setLogLimit($level);
@@ -145,7 +147,7 @@ class Logger
      * @param  string $format
      * @return Logger
      */
-    public function setTimestampFormat($format = 'Y-m-d H:i:s')
+    public function setTimestampFormat(string $format = 'Y-m-d H:i:s'): Logger
     {
         $this->timestampFormat = $format;
         return $this;
@@ -156,7 +158,7 @@ class Logger
      *
      * @return string
      */
-    public function getTimestampFormat()
+    public function getTimestampFormat(): string
     {
         return $this->timestampFormat;
     }
@@ -167,9 +169,9 @@ class Logger
      * @param  int $level
      * @return string
      */
-    public function getLevel($level)
+    public function getLevel(int $level): string
     {
-        return (isset($this->levels[(int)$level])) ? $this->levels[(int)$level] : '';
+        return $this->levels[(int)$level] ?? '';
     }
 
     /**
@@ -178,7 +180,7 @@ class Logger
      * @param  int $level
      * @return string
      */
-    public static function getLogLevel($level)
+    public static function getLogLevel(int $level): string
     {
         return (new self())->getLevel($level);
     }
@@ -190,7 +192,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function emergency($message, array $context = [])
+    public function emergency(mixed $message, array $context = []): Logger
     {
         return $this->log(self::EMERGENCY, $message, $context);
     }
@@ -202,7 +204,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function alert($message, array $context = [])
+    public function alert(mixed $message, array $context = []): Logger
     {
         return $this->log(self::ALERT, $message, $context);
     }
@@ -214,7 +216,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function critical($message, array $context = [])
+    public function critical(mixed $message, array $context = []): Logger
     {
         return $this->log(self::CRITICAL, $message, $context);
     }
@@ -226,7 +228,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function error($message, array $context = [])
+    public function error(mixed $message, array $context = []): Logger
     {
         return $this->log(self::ERROR, $message, $context);
     }
@@ -238,7 +240,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function warning($message, array $context = [])
+    public function warning(mixed $message, array $context = []): Logger
     {
         return $this->log(self::WARNING, $message, $context);
     }
@@ -250,7 +252,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function notice($message, array $context = [])
+    public function notice(mixed $message, array $context = []): Logger
     {
         return $this->log(self::NOTICE, $message, $context);
     }
@@ -262,7 +264,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function info($message, array $context = [])
+    public function info(mixed $message, array $context = []): Logger
     {
         return $this->log(self::INFO, $message, $context);
     }
@@ -274,7 +276,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function debug($message, array $context = [])
+    public function debug(mixed $message, array $context = []): Logger
     {
         return $this->log(self::DEBUG, $message, $context);
     }
@@ -287,7 +289,7 @@ class Logger
      * @param  array $context
      * @return Logger
      */
-    public function log($level, $message, array $context = [])
+    public function log(mixed $level, mixed $message, array $context = []): Logger
     {
         if (!isset($context['timestamp'])) {
             $context['timestamp'] = date($this->timestampFormat);

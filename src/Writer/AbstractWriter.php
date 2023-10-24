@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,18 +19,18 @@ namespace Pop\Log\Writer;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 abstract class AbstractWriter implements WriterInterface
 {
 
     /**
      * Log limit
-     * @var int
+     * @var ?int
      */
-    protected $limit = null;
+    protected ?int $limit = null;
 
     /**
      * Set log limit
@@ -38,7 +38,7 @@ abstract class AbstractWriter implements WriterInterface
      * @param  int $level
      * @return AbstractWriter
      */
-    public function setLogLimit($level)
+    public function setLogLimit(int $level): AbstractWriter
     {
         $level = (int)$level;
 
@@ -53,9 +53,9 @@ abstract class AbstractWriter implements WriterInterface
     /**
      * Get log limit
      *
-     * @return int
+     * @return int|null
      */
-    public function getLogLimit()
+    public function getLogLimit(): int|null
     {
         return $this->limit;
     }
@@ -63,28 +63,26 @@ abstract class AbstractWriter implements WriterInterface
     /**
      * Has log limit
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasLogLimit()
+    public function hasLogLimit(): bool
     {
-        return (null !== $this->limit);
+        return ($this->limit !== null);
     }
 
     /**
      * Check if a log level is within the set log level limit
      *
      * @param  int $level
-     * @return boolean
+     * @return bool
      */
-    public function isWithinLogLimit($level)
+    public function isWithinLogLimit(int $level): bool
     {
-        $level = (int)$level;
-
         if (($level < 0) || ($level > 7)) {
             throw new \InvalidArgumentException('Error: The level ' . $level . ' is an invalid level.');
         }
 
-        return ((null === $this->limit) || ((null !== $this->limit) && ($level <= $this->limit)));
+        return (($this->limit === null) || ($level <= $this->limit));
     }
 
     /**
@@ -95,7 +93,7 @@ abstract class AbstractWriter implements WriterInterface
      * @param  array  $context
      * @return AbstractWriter
      */
-    abstract public function writeLog($level, $message, array $context = []);
+    abstract public function writeLog(mixed $level, string $message, array $context = []): AbstractWriter;
 
     /**
      * Get context for log
@@ -103,7 +101,7 @@ abstract class AbstractWriter implements WriterInterface
      * @param  array $context
      * @return string
      */
-    public function getContext(array $context = [])
+    public function getContext(array $context = []): string
     {
         $messageContext = '';
 

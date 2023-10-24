@@ -23,7 +23,7 @@ class WriterMailTest extends TestCase
 
     public function testLog()
     {
-        $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Sendmail()), 'nobody@localhost', [
+        $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Mailgun(['api_url' => 'http://localhost/', 'api_key' => 'API_KEY'])), 'nobody@localhost', [
             'headers' => [
                 'Reply-To' => 'noreply@localhost'
             ]
@@ -39,7 +39,7 @@ class WriterMailTest extends TestCase
 
     public function testLogWithOptions()
     {
-        $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Sendmail()), 'nobody@localhost', [
+        $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Mailgun(['api_url' => 'http://localhost/', 'api_key' => 'API_KEY'])), 'nobody@localhost', [
             'headers' => [
                 'Reply-To'    => 'noreply@localhost',
                 'CC'          => 'cc@localhost',

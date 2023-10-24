@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,24 +21,24 @@ use Pop\Db\Adapter\AbstractAdapter;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 class Db extends AbstractWriter
 {
 
     /**
      * DB adapter
-     * @var AbstractAdapter
+     * @var ?AbstractAdapter
      */
-    protected $db = null;
+    protected ?AbstractAdapter $db = null;
 
     /**
      * Table
      * @var string
      */
-    protected $table = 'pop_log';
+    protected string $table = 'pop_log';
 
     /**
      * Constructor
@@ -55,7 +55,7 @@ class Db extends AbstractWriter
      * @param  AbstractAdapter $db
      * @param  string          $table
      */
-    public function __construct(AbstractAdapter $db, $table = 'pop_log')
+    public function __construct(AbstractAdapter $db, string $table = 'pop_log')
     {
         $this->db    = $db;
         $this->table = $table;
@@ -73,7 +73,7 @@ class Db extends AbstractWriter
      * @param  array  $context
      * @return Db
      */
-    public function writeLog($level, $message, array $context = [])
+    public function writeLog(mixed $level, string $message, array $context = []): Db
     {
         if ($this->isWithinLogLimit($level)) {
             $sql    = $this->db->createSql();
@@ -117,7 +117,7 @@ class Db extends AbstractWriter
      *
      * @return void
      */
-    protected function createTable()
+    protected function createTable(): void
     {
         $schema = $this->db->createSchema();
         $schema->create($this->table)

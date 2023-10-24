@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,24 +19,24 @@ namespace Pop\Log\Writer;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 class File extends AbstractWriter
 {
 
     /**
      * Log file
-     * @var string
+     * @var ?string
      */
-    protected $file = null;
+    protected ?string $file = null;
 
     /**
      * Log file type
      * @var string
      */
-    protected $type = null;
+    protected ?string $type = null;
 
     /**
      * Constructor
@@ -45,7 +45,7 @@ class File extends AbstractWriter
      *
      * @param  string $file
      */
-    public function __construct($file)
+    public function __construct(string $file)
     {
         if (!file_exists($file)) {
             touch($file);
@@ -54,7 +54,7 @@ class File extends AbstractWriter
         $parts = pathinfo($file);
 
         $this->file = $file;
-        $this->type = (isset($parts['extension']) && !empty($parts['extension'])) ? $parts['extension'] : null;
+        $this->type = $parts['extension'] ?? null;
     }
 
     /**
@@ -65,7 +65,7 @@ class File extends AbstractWriter
      * @param  array  $context
      * @return File
      */
-    public function writeLog($level, $message, array $context = [])
+    public function writeLog(mixed $level, string $message, array $context = []): File
     {
         if ($this->isWithinLogLimit($level)) {
             switch (strtolower($this->type)) {

@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,7 +13,7 @@
  */
 namespace Pop\Log\Writer;
 
-use Pop\Http\Client\Stream;
+use Pop\Http\Client;
 
 /**
  * Http log writer class
@@ -21,29 +21,29 @@ use Pop\Http\Client\Stream;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 class Http extends AbstractWriter
 {
 
     /**
      * Stream object
-     * @var Stream
+     * @var ?Client
      */
-    protected $stream = null;
+    protected ?Client $client = null;
 
     /**
      * Constructor
      *
      * Instantiate the Mail writer object
      *
-     * @param  Stream $stream
+     * @param  Client $client
      */
-    public function __construct(Stream $stream)
+    public function __construct(Client $client)
     {
-        $this->stream = $stream;
+        $this->client = $client;
     }
 
     /**
@@ -54,7 +54,7 @@ class Http extends AbstractWriter
      * @param  array  $context
      * @return Http
      */
-    public function writeLog($level, $message, array $context = [])
+    public function writeLog(mixed $level, string $message, array $context = []): Http
     {
         if ($this->isWithinLogLimit($level)) {
             $timestamp = $context['timestamp'];
@@ -63,15 +63,15 @@ class Http extends AbstractWriter
             unset($context['timestamp']);
             unset($context['name']);
 
-            $this->stream->setFields([
+            $this->client->setData([
                 'timestamp' => $timestamp,
                 'level'     => $level,
                 'name'      => $name,
                 'message'   => $message,
-                'context'   => json_encode($context)
+                'context'   => $context
             ]);
 
-            $this->stream->send();
+            $this->client->send();
         }
 
         return $this;

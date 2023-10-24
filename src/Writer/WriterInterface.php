@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Log\Writer;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 interface WriterInterface
 {
@@ -32,29 +32,29 @@ interface WriterInterface
      * @param  int $level
      * @return WriterInterface
      */
-    public function setLogLimit($level);
+    public function setLogLimit(int $level): WriterInterface;
 
     /**
      * Get log limit
      *
-     * @return int
+     * @return int|null
      */
-    public function getLogLimit();
+    public function getLogLimit(): int|null;
 
     /**
      * Has log limit
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasLogLimit();
+    public function hasLogLimit(): bool;
 
     /**
      * Check if a log level is within the set log level limit
      *
      * @param  int $level
-     * @return boolean
+     * @return bool
      */
-    public function isWithinLogLimit($level);
+    public function isWithinLogLimit(int $level): bool;
 
     /**
      * Write to the log
@@ -64,7 +64,7 @@ interface WriterInterface
      * @param  array  $context
      * @return WriterInterface
      */
-    public function writeLog($level, $message, array $context = []);
+    public function writeLog(mixed $level, string $message, array $context = []): WriterInterface;
 
     /**
      * Determine
@@ -72,6 +72,6 @@ interface WriterInterface
      * @param  array $context
      * @return string
      */
-    public function getContext(array $context = []);
+    public function getContext(array $context = []): string;
 
 }

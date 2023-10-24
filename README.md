@@ -40,6 +40,12 @@ Install `pop-log` using Composer.
 
     composer require popphp/pop-log
 
+Or, require it in your composer.json file
+
+    "require": {
+        "popphp/pop-log" : "^4.0.0"
+    }
+
 BASIC USAGE
 -----------
 

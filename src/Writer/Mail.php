@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -23,30 +23,30 @@ use Pop\Mail\Queue;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.2
+ * @version    4.0.0
  */
 class Mail extends AbstractWriter
 {
 
     /**
      * Mailer object
-     * @var Mailer
+     * @var ?Mailer
      */
-    protected $mailer = null;
+    protected ?Mailer $mailer = null;
 
     /**
      * Emails to which to send the log messages
      * @var array
      */
-    protected $emails = [];
+    protected array $emails = [];
 
     /**
      * Array of mail-specific options, i.e. subject, headers, etc.
      * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * Constructor
@@ -57,7 +57,7 @@ class Mail extends AbstractWriter
      * @param  mixed  $emails
      * @param  array  $options
      */
-    public function __construct(Mailer $mailer, $emails, array $options = [])
+    public function __construct(Mailer $mailer, mixed $emails, array $options = [])
     {
         $this->mailer  = $mailer;
         $this->options = $options;
@@ -79,7 +79,7 @@ class Mail extends AbstractWriter
      * @param  array  $context
      * @return Mail
      */
-    public function writeLog($level, $message, array $context = [])
+    public function writeLog(mixed $level, string $message, array $context = []): Mail
     {
         if ($this->isWithinLogLimit($level)) {
             $subject = (isset($this->options['subject'])) ?
