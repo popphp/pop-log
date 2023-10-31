@@ -75,14 +75,14 @@ use Pop\Log\Writer\File;
 
 $log = new Logger(new File(__DIR__ . '/logs/app.log'));
 
-$log->info('Just a info message.');
+$log->info('Just a info message');
 $log->alert('Look Out! Something serious happened!');
 ```
 
 Then, your 'app.log' file will contain:
 
 ```text
-2015-07-11 12:32:32    6    INFO    Just a info message.
+2015-07-11 12:32:32    6    INFO    Just a info message
 2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
 ```
 
@@ -116,13 +116,13 @@ $context = [
     'timestamp' => date('Y-m-d H:i:s')
 ];
 
-$log->info('Just a info message.', $context);
+$log->info('Just a info message', $context);
 ```
 
 The above code creates a CSV file with the log entry:
 
 ```csv
-2023-10-31 15:58:28,6,my-log-entry,"Just a info message.",
+2023-10-31 15:58:28,6,my-log-entry,"Just a info message",
 ```
 
 [Top](#pop-log)
@@ -149,7 +149,7 @@ $options = [
 $mailer = new Mailer(new Sendmail());
 $log    = new Logger(new Mail($mailer, $emails, $options));
 
-$log->info('Just a info message.');
+$log->info('Just a info message');
 $log->alert('Look Out! Something serious happened!');
 ```
 
@@ -157,7 +157,7 @@ Then the emails listed above will receive a series of emails like this:
 
 ```text
 Subject: Custom Log Entry: INFO (6)
-2023-11-11 12:32:32    6    INFO    Just a info message.
+2023-11-11 12:32:32    6    INFO    Just a info message
 ```
 ```text
 Subject: Custom Log Entry: ALERT (1)
@@ -180,7 +180,7 @@ use Pop\Log\Writer\Database;
 $db  = Db::connect('sqlite', __DIR__ . '/logs/.htapplog.sqlite');
 $log = new Logger(new Database($db, 'system_logs'));
 
-$log->info('Just a info message.');
+$log->info('Just a info message');
 $log->alert('Look Out! Something serious happened!');
 ```
 
@@ -190,7 +190,7 @@ your database table would look like this:
 
 | Id | Timestamp           | Level    | Name  | Message                               |
 |----|---------------------|----------|-------|---------------------------------------|
-| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
+| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message                  |
 | 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
 
 
@@ -199,8 +199,8 @@ your database table would look like this:
 ### HTTP
 
 Using the HTTP writer requires the `pop-http` component. It creates a request and sends
-it to the HTTP logging resource. Refer to the `pop-http` documentation for more information
-on how to use it.
+it to the HTTP logging resource. (Refer to the `pop-http` documentation for more information
+on how to use the HTTP client.)
 
 ```php
 use Pop\Log\Logger;
@@ -215,7 +215,7 @@ $client = new Client(
 );
 
 $log = new Logger(new Writer\Http($client);
-$log->info('Just a info message.');
+$log->info('Just a info message');
 $log->alert('Look Out! Something serious happened!');
 ```
 
@@ -255,7 +255,7 @@ $context = [
     'timestamp' => date('Y-m-d H:i:s')
 ];
 
-$log->info('Just a info message.', $context);
+$log->info('Just a info message', $context);
 ```
 
 [Top](#pop-log)
@@ -279,7 +279,7 @@ $devLog->setLogLimit(6);  // Log only INFO (6) and above
 $log = new Logger([$prodLog, $devLog]);
 
 $log->alert('Look Out! Something serious happened!'); // Will write to both writers
-$log->info('Just a info message.');                   // Will write to only app_dev.log
+$log->info('Just a info message');                   // Will write to only app_dev.log
 ```
 
 The `app_prod.log` file will contain:
@@ -292,6 +292,6 @@ And the `app_dev.log` file will contain:
 
 ```text
 2023-11-11 12:32:33    1    ALERT   Look Out! Something serious happened!
-2023-11-11 12:32:34    6    INFO    Just a info message.
+2023-11-11 12:32:34    6    INFO    Just a info message
 ```
 
