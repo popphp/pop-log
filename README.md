@@ -91,6 +91,9 @@ Then, your 'app.log' file will contain:
 Writers
 -------
 
+There are four available log writers, but others can be created if they implement the
+`Pop\Log\Writer\WriterInterface`.
+
 ### File
 
 The file log writer simply stores the log output to a log file on disk. The log file format
