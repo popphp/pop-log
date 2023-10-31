@@ -190,7 +190,7 @@ your database table would look like this:
 
 | Id | Timestamp           | Level    | Name  | Message                               |
 |----|---------------------|----------|-------|---------------------------------------|
-| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message                  |
+| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message                   |
 | 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
 
 
