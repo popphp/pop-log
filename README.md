@@ -10,13 +10,12 @@ pop-log
 * [Overview](#overview)
 * [Install](#install)
 * [Quickstart](#quickstart)
-* [Context](#context)
 * [Writers](#writers)
   - [File](#file)
   - [Mail](#mail)
   - [Database](#database)
   - [HTTP](#http)
-* [Formats](#formats)
+* [Context](#context)
 * [Limits](#limits)
 Overview
 --------
@@ -88,12 +87,158 @@ Then, your 'app.log' file will contain:
 
 [Top](#pop-log)
 
+Writers
+-------
+
+### File
+
+The file log writer simply stores the log output to a log file on disk. The log file format
+is derived from the log filename. Supported log file types include:
+
+- Plain text (`.log` or `.txt`)
+- CSV (`.csv`)
+- TSV (`.tsv`)
+- XML (`.xml`)
+- JSON (`.json`)
+
+```php
+use Pop\Log\Logger;
+use Pop\Log\Writer\File;
+
+$log = new Logger(new File(__DIR__ . '/logs/app.csv'));
+
+$context = [
+    'name'      => 'my-log-entry',
+    'timestamp' => date('Y-m-d H:i:s')
+];
+
+$log->info('Just a info message.', $context);
+```
+
+The above code creates a CSV file with the log entry:
+
+```csv
+2023-10-31 15:58:28,6,my-log-entry,"Just a info message.",
+```
+
+[Top](#pop-log)
+
+### Mail
+
+The mail log writer sends the log entries via email using the `popphp/pop-mail` component.
+The constructor requires a `Pop\Mail\Mailer` object and at least one email as the second
+argument. An optional third argument allows you to pass in additional email headers, like
+a subject and CC addresses.
+
+```php
+use Pop\Log\Logger;
+use Pop\Log\Writer\Mail;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$emails  = ['sysadmin@mydomain.com', 'logs@mydomain.com'];
+$options = [
+    'subject' => 'Custom Log Entry:',
+    'cc'      => 'another@mydomain.com'
+];
+
+$mailer = new Mailer(new Sendmail());
+$log    = new Logger(new Mail($mailer, $emails, $options));
+
+$log->info('Just a info message.');
+$log->alert('Look Out! Something serious happened!');
+```
+
+Then the emails listed above will receive a series of emails like this:
+
+```text
+Subject: Custom Log Entry: INFO (6)
+2023-11-11 12:32:32    6    INFO    Just a info message.
+```
+```text
+Subject: Custom Log Entry: ALERT (1)
+2023-11-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+```
+
+[Top](#pop-log)
+
+### Database
+
+Writing a log to a table in a database requires the `popphp/pop-db` component.
+The database writer constructor takes an instance of `Pop\Db\Adapter\AbstractAdapter`
+and also an optional `$table` argument (the default table name is `pop_log`).
+
+```php
+use Pop\Db\Db;
+use Pop\Log\Logger;
+use Pop\Log\Writer\Database;
+
+$db  = Db::connect('sqlite', __DIR__ . '/logs/.htapplog.sqlite');
+$log = new Logger(new Database($db, 'system_logs'));
+
+$log->info('Just a info message.');
+$log->alert('Look Out! Something serious happened!');
+```
+
+In this case, the logs are written to a database table that has the columns
+`id`, `timestamp`, `level`, `name` and `message`. So, after the example above,
+your database table would look like this:
+
+| Id | Timestamp           | Level    | Name  | Message                               |
+|----|---------------------|----------|-------|---------------------------------------|
+| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
+| 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
+
+
+[Top](#pop-log)
+
+### HTTP
+
+Using the HTTP writer requires the `pop-http` component. It creates a request and sends
+it to the HTTP logging resource. Refer to the `pop-http` documentation for more information
+on how to use it.
+
+```php
+use Pop\Log\Logger;
+use Pop\Log\Writer;
+use Pop\Http\Client;
+use Pop\Http\Auth;
+
+$client = new Client(
+    'https://logs.mydomain.com/',
+    ['method' => 'POST'],
+    Auth::createKey('LOG_API_KEY')
+);
+
+$log = new Logger(new Writer\Http($client);
+$log->info('Just a info message.');
+$log->alert('Look Out! Something serious happened!');
+```
+
+The log writer will send HTTP requests with the log data to the HTTP service with the following
+HTTP data fields:
+
+- `timestamp`
+- `level`
+- `name`
+- `message`
+- `context`
+
+[Top](#pop-log)
+
 Context
 -------
 
-For more granular control of writing a log entry, the `$context` array can be
-passed to the methods call to trigger the log entry. At a minimum, it can contain
-a `name` and `timestamp` value:
+For additional contextual information, the `$context` array can be passed to the methods
+called to trigger the log entry. It can contain:
+
+```php
+$context = [
+    'name'      => 'my-log-entry',
+    'timestamp' => date('Y-m-d H:i:s'),
+    'format'    => 'json'
+];
+```
 
 ```php
 use Pop\Log\Logger;
@@ -111,110 +256,18 @@ $log->info('Just a info message.', $context);
 
 [Top](#pop-log)
 
-Writers
+Limits
 -------
-
-### File
-
-[Top](#pop-log)
-
-### Mail
-
-Here's an example using mail, which requires `popphp/pop-mail`:
-
-```php
-use Pop\Log\Logger;
-use Pop\Log\Writer\Mail;
-use Pop\Mail\Mailer;
-use Pop\Mail\Transport\Sendmail;
-
-$mailer = new Mailer(new Sendmail());
-$log    = new Logger(new Mail($mailer, [
-    'sysadmin@mydomain.com', 'logs@mydomain.com'
-]));
-
-$log->info('Just a info message.');
-$log->alert('Look Out! Something serious happened!');
-```
-
-Then the emails listed above will receive a series of emails like this:
-
-```text
-Subject: Log Entry: INFO (6)
-2015-07-11 12:32:32    6    INFO    Just a info message.
-```
-```text
-Subject: Log Entry: ALERT (1)
-2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
-```
-
-#### Mail context options 
-
-
-[Top](#pop-log)
-
-### Database
-
-[Top](#pop-log)
-
-### HTTP
-
-[Top](#pop-log)
-
-### Using an HTTP Service
-
-Here's an example using an HTTP service:
-
-```php
-use Pop\Log\Logger;
-use Pop\Log\Writer;
-use Pop\Http\Client;
-
-$stream = new Client\Stream('http://logs.mydomain.com/');
-$log    = new Logger(new Writer\Http($stream);
-
-$log->info('Just a info message.');
-$log->alert('Look Out! Something serious happened!');
-```
-
-The log writer will send HTTP requests with the log data to the HTTP service.
-
-### Using a Database Table
-
-Writing a log to a table in a database requires you to install `popphp/pop-db`:
-
-```php
-use Pop\Db\Db;
-use Pop\Log\Logger;
-use Pop\Log\Writer;
-
-$db  = Db::connect('sqlite', __DIR__ . '/logs/.htapplog.sqlite');
-$log = new Logger(new Writer\Db($db, 'system_logs'));
-
-$log->info('Just a info message.');
-$log->alert('Look Out! Something serious happened!');
-```
-
-In this case, the logs are written to a database table that has the columns
-`id`, `timestamp`, `level`, `name` and `message`. So, after the example above,
-your database table would look like this:
-
-| Id | Timestamp           | Level    | Name  | Message                               |
-|----|---------------------|----------|-------|---------------------------------------|
-| 1  | 2015-07-11 12:32:32 | 6        | INFO  | Just a info message.                  |
-| 2  | 2015-07-11 12:32:33 | 1        | ALERT | Look Out! Something serious happened! |
-
-### Setting Log Limits
 
 Log level limits can be set for the log writer objects to enforce the severity of
 which log messages actually get logged:
 
 ```php
 use Pop\Log\Logger;
-use Pop\Log\Writer;
+use Pop\Log\Writer\File;
 
-$prodLog = new Writer\File(__DIR__ . '/logs/app_prod.log');
-$devLog  = new Writer\File(__DIR__ . '/logs/app_dev.log');
+$prodLog = new File(__DIR__ . '/logs/app_prod.log');
+$devLog  = new File(__DIR__ . '/logs/app_dev.log');
 
 $prodLog->setLogLimit(3); // Log only ERROR (3) and above
 $devLog->setLogLimit(6);  // Log only INFO (6) and above
@@ -223,16 +276,18 @@ $log = new Logger([$prodLog, $devLog]);
 
 $log->alert('Look Out! Something serious happened!'); // Will write to both writers
 $log->info('Just a info message.');                   // Will write to only app_dev.log
-
 ```
 
 The `app_prod.log` file will contain:
 
-    2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+```text
+2023-11-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+```
 
 And the `app_dev.log` file will contain:
 
-    2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
-    2015-07-11 12:32:34    6    INFO    Just a info message.
-
+```text
+2023-11-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+2023-11-11 12:32:34    6    INFO    Just a info message.
+```
 

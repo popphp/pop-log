@@ -34,7 +34,7 @@ class File extends AbstractWriter
 
     /**
      * Log file type
-     * @var string
+     * @var ?string
      */
     protected ?string $type = null;
 
@@ -55,6 +55,24 @@ class File extends AbstractWriter
 
         $this->file = $file;
         $this->type = $parts['extension'] ?? null;
+    }
+
+    /**
+     * Get file
+     * @return string
+     */
+    public function getFile(): string
+    {
+        return $this->file;
+    }
+
+    /**
+     * Get type
+     * @return ?string
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
     }
 
     /**

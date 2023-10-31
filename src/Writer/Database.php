@@ -57,12 +57,41 @@ class Database extends AbstractWriter
      */
     public function __construct(AbstractAdapter $db, string $table = 'pop_log')
     {
-        $this->db    = $db;
-        $this->table = $table;
+        $this->db = $db;
+        $this->setTable($table);
 
         if (!$db->hasTable($this->table)) {
             $this->createTable();
         }
+    }
+
+    /**
+     * Get DB
+     * @return AbstractAdapter
+     */
+    public function getDb(): AbstractAdapter
+    {
+        return $this->db;
+    }
+
+    /**
+     * Get table
+     * @return string
+     */
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
+    /**
+     * Set table
+     * @parma  string $table
+     * @return Database
+     */
+    public function setTable(string $table): Database
+    {
+        $this->table = $table;
+        return $this;
     }
 
     /**

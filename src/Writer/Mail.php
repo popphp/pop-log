@@ -59,9 +59,59 @@ class Mail extends AbstractWriter
      */
     public function __construct(Mailer $mailer, mixed $emails, array $options = [])
     {
-        $this->mailer  = $mailer;
-        $this->options = $options;
+        $this->mailer = $mailer;
+        $this->setEmails($emails);
+        $this->setOptions($options);
+    }
 
+    /**
+     * Get mailer
+     * @return Mailer
+     */
+    public function getMailer(): Mailer
+    {
+        return $this->mailer;
+    }
+
+    /**
+     * Get emails
+     * @return array
+     */
+    public function getEmails(): array
+    {
+        return $this->emails;
+    }
+
+    /**
+     * Get options
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
+     * Set emails
+     *
+     * @param  mixed $emails
+     * @return Mail
+     */
+    public function setEmails(mixed $emails): Mail
+    {
+        $this->emails = [];
+        $this->addEmails($emails);
+        return $this;
+    }
+
+    /**
+     * Add emails
+     *
+     * @param  mixed $emails
+     * @return Mail
+     */
+    public function addEmails(mixed $emails): Mail
+    {
         if (is_array($emails)) {
             foreach ($emails as $email) {
                 $this->emails[] = ['email' => $email];
@@ -69,6 +119,46 @@ class Mail extends AbstractWriter
         } else if (is_string($emails)) {
             $this->emails[] = ['email' => $emails];
         }
+        return $this;
+    }
+
+    /**
+     * Set options
+     *
+     * @param  array $options
+     * @return Mail
+     */
+    public function setOptions(array $options): Mail
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
+     * Add option
+     *
+     * @param  mixed $option
+     * @param  mixed $value
+     * @return Mail
+     */
+    public function addOption(mixed $option, mixed $value): Mail
+    {
+        $this->options[$option] = $value;
+        return $this;
+    }
+
+    /**
+     * Add options
+     *
+     * @param  array $options
+     * @return Mail
+     */
+    public function addOptions(array $options): Mail
+    {
+        foreach ($options as $option => $value) {
+            $this->addOption($option, $value);
+        }
+        return $this;
     }
 
     /**

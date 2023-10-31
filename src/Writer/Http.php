@@ -47,6 +47,15 @@ class Http extends AbstractWriter
     }
 
     /**
+     * Get client
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
+    }
+
+    /**
      * Write to the log
      *
      * @param  mixed  $level
