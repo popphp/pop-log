@@ -13,6 +13,7 @@ class WriterHttpTest extends TestCase
     {
         $writer = new Http(new Client('http://localhost/', ['method' => 'POST']));
         $this->assertInstanceOf('Pop\Log\Writer\Http', $writer);
+        $this->assertInstanceOf('Pop\Http\Client', $writer->getClient());
     }
 
     public function testSend()

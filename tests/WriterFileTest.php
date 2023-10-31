@@ -13,6 +13,8 @@ class WriterFileTest extends TestCase
         $writer = new File(__DIR__ . '/tmp/test.log');
         $this->assertInstanceOf('Pop\Log\Writer\File', $writer);
         $this->assertFileExists(__DIR__ . '/tmp/test.log');
+        $this->assertEquals(__DIR__ . '/tmp/test.log', $writer->getFile());
+        $this->assertEquals('log', $writer->getType());
         unlink(__DIR__ . '/tmp/test.log');
     }
 

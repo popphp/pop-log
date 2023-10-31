@@ -20,6 +20,8 @@ class WriterDatabaseTest extends TestCase
         $writer = new Writer\Database($db, 'logs');
         $this->assertInstanceOf('Pop\Log\Writer\Database', $writer);
         $this->assertContains('logs', $db->getTables());
+        $this->assertInstanceOf('Pop\Db\Adapter\Sqlite', $writer->getDb());
+        $this->assertEquals('logs', $writer->getTable());
     }
 
     public function testLog()

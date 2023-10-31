@@ -279,7 +279,7 @@ $devLog->setLogLimit(6);  // Log only INFO (6) and above
 $log = new Logger([$prodLog, $devLog]);
 
 $log->alert('Look Out! Something serious happened!'); // Will write to both writers
-$log->info('Just a info message');                   // Will write to only app_dev.log
+$log->info('Just a info message');                    // Will write to only app_dev.log
 ```
 
 The `app_prod.log` file will contain:

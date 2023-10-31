@@ -13,12 +13,25 @@ class WriterMailTest extends TestCase
     {
         $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Sendmail()), 'nobody@localhost');
         $this->assertInstanceOf('Pop\Log\Writer\Mail', $writer);
+        $this->assertInstanceOf('Pop\Mail\Mailer', $writer->getMailer());
+        $this->assertIsArray($writer->getEmails());
+        $this->assertIsArray($writer->getOptions());
     }
 
     public function testConstructor2()
     {
         $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Sendmail()), ['nobody1@localhost', 'nobody2@localhost'] );
         $this->assertInstanceOf('Pop\Log\Writer\Mail', $writer);
+    }
+
+    public function testAddOptions()
+    {
+        $writer = new Writer\Mail(new Mail\Mailer(new Mail\Transport\Sendmail()), 'nobody@localhost');
+        $writer->addOptions([
+            'subject' => 'Subject',
+            'cc'      => 'nobody2@localhost'
+        ]);
+        $this->assertCount(2, $writer->getOptions());
     }
 
     public function testLog()
