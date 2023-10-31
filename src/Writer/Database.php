@@ -16,7 +16,7 @@ namespace Pop\Log\Writer;
 use Pop\Db\Adapter\AbstractAdapter;
 
 /**
- * Db log writer class
+ * Database log writer class
  *
  * @category   Pop
  * @package    Pop\Log
@@ -25,7 +25,7 @@ use Pop\Db\Adapter\AbstractAdapter;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-class Db extends AbstractWriter
+class Database extends AbstractWriter
 {
 
     /**
@@ -71,9 +71,9 @@ class Db extends AbstractWriter
      * @param  mixed  $level
      * @param  string $message
      * @param  array  $context
-     * @return Db
+     * @return Database
      */
-    public function writeLog(mixed $level, string $message, array $context = []): Db
+    public function writeLog(mixed $level, string $message, array $context = []): Database
     {
         if ($this->isWithinLogLimit($level)) {
             $sql    = $this->db->createSql();

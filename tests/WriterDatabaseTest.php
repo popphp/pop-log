@@ -6,7 +6,7 @@ use Pop\Log\Writer;
 use Pop\Db\Db;
 use PHPUnit\Framework\TestCase;
 
-class WriterDbTest extends TestCase
+class WriterDatabaseTest extends TestCase
 {
 
     public function testConstructor()
@@ -17,15 +17,15 @@ class WriterDbTest extends TestCase
         touch(__DIR__ . '/tmp/log.sqlite');
         chmod(__DIR__ . '/tmp/log.sqlite', 0777);
         $db     = Db::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
-        $writer = new Writer\Db($db, 'logs');
-        $this->assertInstanceOf('Pop\Log\Writer\Db', $writer);
+        $writer = new Writer\Database($db, 'logs');
+        $this->assertInstanceOf('Pop\Log\Writer\Database', $writer);
         $this->assertContains('logs', $db->getTables());
     }
 
     public function testLog()
     {
         $db     = Db::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
-        $writer = new Writer\Db($db, 'logs');
+        $writer = new Writer\Database($db, 'logs');
 
         $writer->writeLog(5, 'This is a database test.', [
             'timestamp' => date('Y-m-d H:i:s'),

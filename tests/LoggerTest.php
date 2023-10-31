@@ -41,7 +41,7 @@ class LoggerTest extends TestCase
         $logger = new Logger();
         $logger->addWriters([
             new Writer\File(__DIR__ . '/tmp/test.log'),
-            new Writer\Db($db, 'logs')
+            new Writer\Database($db, 'logs')
         ]);
         $this->assertEquals(2, count($logger->getWriters()));
         if (file_exists(__DIR__ . '/tmp/log.sqlite')) {

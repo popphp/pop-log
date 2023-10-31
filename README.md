@@ -4,12 +4,26 @@ pop-log
 [![Build Status](https://github.com/popphp/pop-log/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-log/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-log)](http://cc.popphp.org/pop-log/)
 
-OVERVIEW
+[![Join the chat at https://popphp.slack.com](https://media.popphp.org/img/slack.svg)](https://popphp.slack.com)
+[![Join the chat at https://discord.gg/D9JBxPa5](https://media.popphp.org/img/discord.svg)](https://discord.gg/D9JBxPa5)
+
+* [Overview](#overview)
+* [Install](#install)
+* [Quickstart](#quickstart)
+* [Context](#context)
+* [Writers](#writers)
+  - [File](#file)
+  - [Mail](#mail)
+  - [Database](#database)
+  - [HTTP](#http)
+* [Formats](#formats)
+* [Limits](#limits)
+Overview
 --------
 `pop-log` is a logging component that provides a way of logging events following the standard
-BSD syslog protocol outlined in [RFC-3164](http://tools.ietf.org/html/rfc3164). Support is built-in
-for writing log messages to a file or database table or deploying them via email. The eight
-available log message severity values are:
+BSD syslog protocol outlined in [RFC-3164](http://tools.ietf.org/html/rfc3164). Support is built-in for writing log messages
+to a file or database table or deploying them via email or HTTP. The eight available log message
+severity values are:
 
 * EMERG  (0)
 * ALERT  (1)
@@ -33,7 +47,9 @@ and are available via their respective methods:
 
 `pop-log` is a component of the [Pop PHP Framework](http://www.popphp.org/).
 
-INSTALL
+[Top](#pop-log)
+
+Install
 -------
 
 Install `pop-log` using Composer.
@@ -46,19 +62,18 @@ Or, require it in your composer.json file
         "popphp/pop-log" : "^4.0.0"
     }
 
-BASIC USAGE
------------
+[Top](#pop-log)
 
-### Using a Log File
+Quickstart
+----------
 
-Setting up and using a log file is pretty simple. Plain text is the default,
-but there is also support for CSV, TSV and XML formats:
+This is a basic example using the file writer:
 
 ```php
 use Pop\Log\Logger;
-use Pop\Log\Writer;
+use Pop\Log\Writer\File;
 
-$log = new Logger(new Writer\File(__DIR__ . '/logs/app.log'));
+$log = new Logger(new File(__DIR__ . '/logs/app.log'));
 
 $log->info('Just a info message.');
 $log->alert('Look Out! Something serious happened!');
@@ -66,20 +81,55 @@ $log->alert('Look Out! Something serious happened!');
 
 Then, your 'app.log' file will contain:
 
-    2015-07-11 12:32:32    6    INFO    Just a info message.
-    2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+```text
+2015-07-11 12:32:32    6    INFO    Just a info message.
+2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+```
 
-### Using Email
+[Top](#pop-log)
 
-Here's an example using email, which requires you to install `popphp/pop-mail`:
+Context
+-------
+
+For more granular control of writing a log entry, the `$context` array can be
+passed to the methods call to trigger the log entry. At a minimum, it can contain
+a `name` and `timestamp` value:
 
 ```php
 use Pop\Log\Logger;
-use Pop\Log\Writer;
-use Pop\Mail;
+use Pop\Log\Writer\File;
 
-$mailer = new Mail\Mailer(new Mail\Transport\Sendmail());
-$log    = new Logger(new Writer\Mail($mailer, [
+$log = new Logger(new File(__DIR__ . '/logs/app.log'));
+
+$context = [
+    'name'      => 'my-log-entry',
+    'timestamp' => date('Y-m-d H:i:s')
+];
+
+$log->info('Just a info message.', $context);
+```
+
+[Top](#pop-log)
+
+Writers
+-------
+
+### File
+
+[Top](#pop-log)
+
+### Mail
+
+Here's an example using mail, which requires `popphp/pop-mail`:
+
+```php
+use Pop\Log\Logger;
+use Pop\Log\Writer\Mail;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$mailer = new Mailer(new Sendmail());
+$log    = new Logger(new Mail($mailer, [
     'sysadmin@mydomain.com', 'logs@mydomain.com'
 ]));
 
@@ -89,13 +139,27 @@ $log->alert('Look Out! Something serious happened!');
 
 Then the emails listed above will receive a series of emails like this:
 
-    Subject: Log Entry: INFO (6)
-    2015-07-11 12:32:32    6    INFO    Just a info message.
+```text
+Subject: Log Entry: INFO (6)
+2015-07-11 12:32:32    6    INFO    Just a info message.
+```
+```text
+Subject: Log Entry: ALERT (1)
+2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+```
 
-and
+#### Mail context options 
 
-    Subject: Log Entry: ALERT (1)
-    2015-07-11 12:32:33    1    ALERT   Look Out! Something serious happened!
+
+[Top](#pop-log)
+
+### Database
+
+[Top](#pop-log)
+
+### HTTP
+
+[Top](#pop-log)
 
 ### Using an HTTP Service
 
