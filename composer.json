@@ -22,8 +22,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0.0",
-        "popphp/pop-db": "^6.0.0",
-        "popphp/pop-http": "^5.0.0",
+        "popphp/pop-db": "^6.5.0",
+        "popphp/pop-http": "^5.0.2",
         "popphp/pop-mail": "^4.0.0"
     },
     "autoload": {
