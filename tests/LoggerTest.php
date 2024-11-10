@@ -116,6 +116,15 @@ class LoggerTest extends TestCase
         unlink(__DIR__ . '/tmp/test.log');
     }
 
+    public function testPhpContext()
+    {
+        $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));
+        $logger->info('This is an info.', ['foo' => 'bar', 'format' => 'php']);
+        $this->assertStringContainsString('{', file_get_contents(__DIR__ . '/tmp/test.log'));
+
+        unlink(__DIR__ . '/tmp/test.log');
+    }
+
     public function testArrayAndObjectContext()
     {
         $logger = new Logger(new Writer\File(__DIR__ . '/tmp/test.log'));

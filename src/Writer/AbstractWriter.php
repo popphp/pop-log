@@ -119,9 +119,14 @@ abstract class AbstractWriter implements WriterInterface
         }
 
         switch ($format) {
+            // If the data values needs to be preserved, use JSON encoding or PHP serialization
             case 'json':
                 $messageContext = json_encode($context);
                 break;
+            case 'php':
+                $messageContext = serialize($context);
+                break;
+            // Else, complex values like arrays and objects will get reduced to a basic string representation, i.e. [Array]
             default:
                 foreach ($context as $key => $value) {
                     if (is_array($value)) {
