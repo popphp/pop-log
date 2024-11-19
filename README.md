@@ -4,7 +4,6 @@ pop-log
 [![Build Status](https://github.com/popphp/pop-log/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-log/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-log)](http://cc.popphp.org/pop-log/)
 
-[![Join the chat at https://popphp.slack.com](https://media.popphp.org/img/slack.svg)](https://popphp.slack.com)
 [![Join the chat at https://discord.gg/TZjgT74U7E](https://media.popphp.org/img/discord.svg)](https://discord.gg/TZjgT74U7E)
 
 * [Overview](#overview)
@@ -45,7 +44,7 @@ and are available via their respective methods:
 * $log->info($message);
 * $log->debug($message);
 
-`pop-log` is a component of the [Pop PHP Framework](http://www.popphp.org/).
+`pop-log` is a component of the [Pop PHP Framework](https://www.popphp.org/).
 
 [Top](#pop-log)
 
