@@ -58,7 +58,7 @@ Install `pop-log` using Composer.
 Or, require it in your composer.json file
 
     "require": {
-        "popphp/pop-log" : "^4.0.2"
+        "popphp/pop-log" : "^4.0.3"
     }
 
 [Top](#pop-log)
