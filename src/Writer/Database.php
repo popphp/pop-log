@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Db\Adapter\AbstractAdapter;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    5.0.0
  */
 class Database extends AbstractWriter
 {
@@ -47,7 +47,7 @@ class Database extends AbstractWriter
      *
      * The DB table requires the following fields at a minimum:
      *     timestamp  DATETIME
-     *     level      INT
+     *     level      VARCHAR
      *     name       VARCHAR
      *     message    TEXT, VARCHAR, etc.
      *     context    TEXT, VARCHAR, etc.
@@ -97,12 +97,12 @@ class Database extends AbstractWriter
     /**
      * Write to the log
      *
-     * @param  mixed  $level
+     * @param  string $level
      * @param  string $message
      * @param  array  $context
      * @return Database
      */
-    public function writeLog(mixed $level, string $message, array $context = []): Database
+    public function writeLog(string $level, string $message, array $context = []): Database
     {
         if ($this->isWithinLogLimit($level)) {
             $sql    = $this->db->createSql();
@@ -152,7 +152,7 @@ class Database extends AbstractWriter
         $schema->create($this->table)
             ->int('id')->increment()
             ->datetime('timestamp')
-            ->int('level', 1)
+            ->varchar('level', 20)
             ->varchar('name', 255)
             ->text('message')
             ->text('context')

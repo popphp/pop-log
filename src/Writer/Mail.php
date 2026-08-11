@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -23,9 +23,9 @@ use Pop\Mail\Queue;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    5.0.0
  */
 class Mail extends AbstractWriter
 {
@@ -164,18 +164,18 @@ class Mail extends AbstractWriter
     /**
      * Write to the log
      *
-     * @param  mixed  $level
+     * @param  string $level
      * @param  string $message
      * @param  array  $context
      * @return Mail
      */
-    public function writeLog(mixed $level, string $message, array $context = []): Mail
+    public function writeLog(string $level, string $message, array $context = []): Mail
     {
         if ($this->isWithinLogLimit($level)) {
             $subject = (isset($this->options['subject'])) ?
                 $this->options['subject'] : 'Log Entry:';
 
-            $subject .= ' ' . $context['name'] . ' (' . $level . ')';
+            $subject .= ' ' . $this->sanitize($context['name']) . ' (' . $level . ')';
 
             $queue       = new Queue($this->emails);
             $mailMessage = new Message($subject);
@@ -208,8 +208,8 @@ class Mail extends AbstractWriter
             }
 
             $mailMessage->setBody(
-                $context['timestamp'] . "\t" . $level . "\t" . $context['name'] . "\t" .
-                $message . "\t" . $this->getContext($context) . PHP_EOL
+                $this->sanitize($context['timestamp']) . "\t" . $level . "\t" . $this->sanitize($context['name']) . "\t" .
+                $this->sanitize($message) . "\t" . $this->sanitize($this->getContext($context)) . PHP_EOL
             );
 
             $queue->addMessage($mailMessage);

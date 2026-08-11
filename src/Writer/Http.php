@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Http\Client;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    5.0.0
  */
 class Http extends AbstractWriter
 {
@@ -58,12 +58,12 @@ class Http extends AbstractWriter
     /**
      * Write to the log
      *
-     * @param  mixed  $level
+     * @param  string $level
      * @param  string $message
      * @param  array  $context
      * @return Http
      */
-    public function writeLog(mixed $level, string $message, array $context = []): Http
+    public function writeLog(string $level, string $message, array $context = []): Http
     {
         if ($this->isWithinLogLimit($level)) {
             $timestamp = $context['timestamp'];

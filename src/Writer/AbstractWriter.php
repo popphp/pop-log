@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -13,49 +13,49 @@
  */
 namespace Pop\Log\Writer;
 
+use Pop\Log\Context;
+use Pop\Log\Level;
+
 /**
  * Log writer abstract class
  *
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    5.0.0
  */
 abstract class AbstractWriter implements WriterInterface
 {
 
     /**
-     * Log limit
-     * @var ?int
+     * Log limit, stored as the canonical PSR-3 level string
+     * @var ?string
      */
-    protected ?int $limit = null;
+    protected ?string $limit = null;
 
     /**
      * Set log limit
      *
-     * @param  int $level
+     * Accepts either a PSR-3 level string or a legacy severity int (0-7) for backward compatibility;
+     * always normalized and stored as the canonical PSR-3 string.
+     *
+     * @param  string|int $level
      * @return AbstractWriter
      */
-    public function setLogLimit(int $level): AbstractWriter
+    public function setLogLimit(string|int $level): AbstractWriter
     {
-        $level = (int)$level;
-
-        if (($level < 0) || ($level > 7)) {
-            throw new \InvalidArgumentException('Error: The level ' . $level . ' is an invalid level.');
-        }
-
-        $this->limit = $level;
+        $this->limit = Level::fromSeverity(Level::toSeverity($level));
         return $this;
     }
 
     /**
      * Get log limit
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getLogLimit(): int|null
+    public function getLogLimit(): string|null
     {
         return $this->limit;
     }
@@ -73,27 +73,24 @@ abstract class AbstractWriter implements WriterInterface
     /**
      * Check if a log level is within the set log level limit
      *
-     * @param  int $level
+     * @param  string|int $level
      * @return bool
      */
-    public function isWithinLogLimit(int $level): bool
+    public function isWithinLogLimit(string|int $level): bool
     {
-        if (($level < 0) || ($level > 7)) {
-            throw new \InvalidArgumentException('Error: The level ' . $level . ' is an invalid level.');
-        }
-
-        return (($this->limit === null) || ($level <= $this->limit));
+        $severity = Level::toSeverity($level);
+        return (($this->limit === null) || ($severity <= Level::toSeverity($this->limit)));
     }
 
     /**
      * Write to the log
      *
-     * @param  mixed  $level
+     * @param  string $level
      * @param  string $message
      * @param  array  $context
      * @return AbstractWriter
      */
-    abstract public function writeLog(mixed $level, string $message, array $context = []): AbstractWriter;
+    abstract public function writeLog(string $level, string $message, array $context = []): AbstractWriter;
 
     /**
      * Get context for log
@@ -103,43 +100,20 @@ abstract class AbstractWriter implements WriterInterface
      */
     public function getContext(array $context = []): string
     {
-        $messageContext = '';
+        return Context::serialize($context);
+    }
 
-        if (isset($context['timestamp'])) {
-            unset($context['timestamp']);
-        }
-        if (isset($context['name'])) {
-            unset($context['name']);
-        }
-        if (isset($context['format'])) {
-            $format = $context['format'];
-            unset($context['format']);
-        } else {
-            $format = 'text';
-        }
-
-        switch ($format) {
-            // If the data values needs to be preserved, use JSON encoding or PHP serialization
-            case 'json':
-                $messageContext = json_encode($context);
-                break;
-            case 'php':
-                $messageContext = serialize($context);
-                break;
-            // Else, complex values like arrays and objects will get reduced to a basic string representation, i.e. [Array]
-            default:
-                foreach ($context as $key => $value) {
-                    if (is_array($value)) {
-                        $value = '[Array]';
-                    }
-                    if (is_object($value)) {
-                        $value = '[Object]';
-                    }
-                    $messageContext .= (string)$key . '=' . (string)$value . ';';
-                }
-        }
-
-        return $messageContext;
+    /**
+     * Strip CR/LF from a value before it's written into a delimited/line-based log format, to prevent an
+     * embedded newline from forging a fake extra line (or, for writers that build header-style text like
+     * Mail's Subject line, a fake extra header).
+     *
+     * @param  string $value
+     * @return string
+     */
+    protected function sanitize(string $value): string
+    {
+        return Context::sanitize($value);
     }
 
 }

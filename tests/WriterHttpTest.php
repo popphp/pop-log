@@ -19,7 +19,7 @@ class WriterHttpTest extends TestCase
     public function testSend()
     {
         $writer = new Http(new Client('http://localhost/', ['method' => 'POST']));
-        $writer->writeLog(3, 'Something went wrong.', [
+        $writer->writeLog(\Psr\Log\LogLevel::ERROR, 'Something went wrong.', [
             'timestamp' => date('Y-m-d H:i:s'),
             'name'      => 'ERROR'
         ]);

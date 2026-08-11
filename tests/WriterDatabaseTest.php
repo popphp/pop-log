@@ -4,6 +4,7 @@ namespace Pop\Log\Test;
 
 use Pop\Log\Writer;
 use Pop\Db\Db;
+use Psr\Log\LogLevel;
 use PHPUnit\Framework\TestCase;
 
 class WriterDatabaseTest extends TestCase
@@ -29,7 +30,7 @@ class WriterDatabaseTest extends TestCase
         $db     = Db::connect('sqlite', ['database' => __DIR__ . '/tmp/log.sqlite']);
         $writer = new Writer\Database($db, 'logs');
 
-        $writer->writeLog(5, 'This is a database test.', [
+        $writer->writeLog(LogLevel::NOTICE, 'This is a database test.', [
             'timestamp' => date('Y-m-d H:i:s'),
             'name'      => 'NOTICE'
         ]);
@@ -40,6 +41,7 @@ class WriterDatabaseTest extends TestCase
             $rows[] = $row;
         }
         $this->assertEquals('This is a database test.', $rows[0]['message']);
+        $this->assertEquals(LogLevel::NOTICE, $rows[0]['level']);
         if (file_exists(__DIR__ . '/tmp/log.sqlite')) {
             unlink(__DIR__ . '/tmp/log.sqlite');
         }

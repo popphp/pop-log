@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -14,6 +14,9 @@
 namespace Pop\Log;
 
 use Pop\Log\Writer\WriterInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+use Stringable;
 
 /**
  * Logger class
@@ -21,46 +24,43 @@ use Pop\Log\Writer\WriterInterface;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    5.0.0
  */
-class Logger
+class Logger implements LoggerInterface
 {
 
     /**
-     * Constants for log levels
-     * @var int
+     * Constants for log levels (PSR-3 level strings)
+     * @var string
      */
-    const EMERGENCY = 0;
-    const ALERT     = 1;
-    const CRITICAL  = 2;
-    const ERROR     = 3;
-    const WARNING   = 4;
-    const NOTICE    = 5;
-    const INFO      = 6;
-    const DEBUG     = 7;
+    const EMERGENCY = LogLevel::EMERGENCY;
+    const ALERT     = LogLevel::ALERT;
+    const CRITICAL  = LogLevel::CRITICAL;
+    const ERROR     = LogLevel::ERROR;
+    const WARNING   = LogLevel::WARNING;
+    const NOTICE    = LogLevel::NOTICE;
+    const INFO      = LogLevel::INFO;
+    const DEBUG     = LogLevel::DEBUG;
 
     /**
-     * Message level short codes
+     * Reserved context keys never treated as interpolation placeholders
      * @var array
      */
-    protected array $levels = [
-        0 => 'EMERGENCY',
-        1 => 'ALERT',
-        2 => 'CRITICAL',
-        3 => 'ERROR',
-        4 => 'WARNING',
-        5 => 'NOTICE',
-        6 => 'INFO',
-        7 => 'DEBUG'
-    ];
+    protected const RESERVED_CONTEXT_KEYS = ['timestamp', 'name', 'format'];
 
     /**
      * Log writers
      * @var array
      */
     protected array $writers = [];
+
+    /**
+     * Context-enrichment processors
+     * @var callable[]
+     */
+    protected array $processors = [];
 
     /**
      * Log timestamp format
@@ -74,13 +74,11 @@ class Logger
      * Instantiate the logger object
      *
      * @param  WriterInterface|array|null $writer
-     * @param  string                 $timestampFormat
+     * @param  string                     $timestampFormat
      */
     public function __construct(WriterInterface|array|null $writer = [], string $timestampFormat = 'Y-m-d H:i:s')
     {
-        if ($timestampFormat !== null) {
-            $this->setTimestampFormat($timestampFormat);
-        }
+        $this->setTimestampFormat($timestampFormat);
 
         if ($writer !== null) {
             if (is_array($writer)) {
@@ -128,12 +126,48 @@ class Logger
     }
 
     /**
-     * Set log level limit for all log writers
+     * Add context-enrichment processors
      *
-     * @param  int $level
+     * @param  array $processors
      * @return Logger
      */
-    public function setLogLimit(int $level): Logger
+    public function addProcessors(array $processors): Logger
+    {
+        foreach ($processors as $processor) {
+            $this->addProcessor($processor);
+        }
+        return $this;
+    }
+
+    /**
+     * Add a context-enrichment processor
+     *
+     * @param  callable $processor
+     * @return Logger
+     */
+    public function addProcessor(callable $processor): Logger
+    {
+        $this->processors[] = $processor;
+        return $this;
+    }
+
+    /**
+     * Get all context-enrichment processors
+     *
+     * @return callable[]
+     */
+    public function getProcessors(): array
+    {
+        return $this->processors;
+    }
+
+    /**
+     * Set log level limit for all log writers
+     *
+     * @param  string|int $level
+     * @return Logger
+     */
+    public function setLogLimit(string|int $level): Logger
     {
         foreach ($this->writers as $writer) {
             $writer->setLogLimit($level);
@@ -164,145 +198,199 @@ class Logger
     }
 
     /**
-     * Get level
+     * Get level display name
      *
-     * @param  int $level
+     * Accepts either a PSR-3 level string or a legacy severity int (0-7).
+     *
+     * @param  string|int $level
      * @return string
      */
-    public function getLevel(int $level): string
+    public function getLevel(string|int $level): string
     {
-        return $this->levels[(int)$level] ?? '';
+        return Level::toName(Level::fromSeverity(Level::toSeverity($level)));
     }
 
     /**
-     * Static method to get log level
+     * Static method to get log level display name
      *
-     * @param  int $level
+     * @param  string|int $level
      * @return string
      */
-    public static function getLogLevel(int $level): string
+    public static function getLogLevel(string|int $level): string
     {
-        return (new self())->getLevel($level);
+        return Level::toName(Level::fromSeverity(Level::toSeverity($level)));
     }
 
     /**
      * Add an EMERGENCY log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function emergency(mixed $message, array $context = []): Logger
+    public function emergency(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::EMERGENCY, $message, $context);
+        $this->log(self::EMERGENCY, $message, $context);
     }
 
     /**
      * Add an ALERT log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function alert(mixed $message, array $context = []): Logger
+    public function alert(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::ALERT, $message, $context);
+        $this->log(self::ALERT, $message, $context);
     }
 
     /**
      * Add a CRITICAL log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function critical(mixed $message, array $context = []): Logger
+    public function critical(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::CRITICAL, $message, $context);
+        $this->log(self::CRITICAL, $message, $context);
     }
 
     /**
      * Add an ERROR log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function error(mixed $message, array $context = []): Logger
+    public function error(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::ERROR, $message, $context);
+        $this->log(self::ERROR, $message, $context);
     }
 
     /**
      * Add a WARNING log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function warning(mixed $message, array $context = []): Logger
+    public function warning(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::WARNING, $message, $context);
+        $this->log(self::WARNING, $message, $context);
     }
 
     /**
      * Add a NOTICE log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function notice(mixed $message, array $context = []): Logger
+    public function notice(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::NOTICE, $message, $context);
+        $this->log(self::NOTICE, $message, $context);
     }
 
     /**
      * Add an INFO log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function info(mixed $message, array $context = []): Logger
+    public function info(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::INFO, $message, $context);
+        $this->log(self::INFO, $message, $context);
     }
 
     /**
      * Add a DEBUG log entry
      *
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function debug(mixed $message, array $context = []): Logger
+    public function debug(string|Stringable $message, array $context = []): void
     {
-        return $this->log(self::DEBUG, $message, $context);
+        $this->log(self::DEBUG, $message, $context);
     }
 
     /**
      * Add a log entry
      *
-     * @param  mixed $level
-     * @param  mixed $message
-     * @param  array $context
-     * @return Logger
+     * $level stays untyped/mixed to match Psr\Log\LoggerInterface::log() exactly (PHP forbids narrowing
+     * an interface parameter's type). Accepts a PSR-3 level string or a legacy severity int (0-7).
+     * Registered processors enrich $context before interpolation runs.
+     *
+     * @param  mixed             $level
+     * @param  string|Stringable $message
+     * @param  array             $context
+     * @return void
      */
-    public function log(mixed $level, mixed $message, array $context = []): Logger
+    public function log(mixed $level, string|Stringable $message, array $context = []): void
     {
+        $level = Level::fromSeverity(Level::toSeverity($level));
+
         if (!isset($context['timestamp'])) {
             $context['timestamp'] = date($this->timestampFormat);
         }
         if (!isset($context['name'])) {
-            $context['name'] = $this->levels[$level];
+            $context['name'] = Level::toName($level);
         }
+
+        foreach ($this->processors as $processor) {
+            $context = $processor($context);
+        }
+
+        $context['timestamp'] ??= date($this->timestampFormat);
+        $context['name']      ??= Level::toName($level);
+
+        [$message, $context] = $this->interpolate((string)$message, $context);
+
+        $failure = null;
 
         foreach ($this->writers as $writer) {
-            $writer->writeLog($level, (string)$message, $context);
+            try {
+                $writer->writeLog($level, $message, $context);
+            } catch (\Exception $exception) {
+                $failure ??= $exception;
+            }
         }
 
-        return $this;
+        if ($failure !== null) {
+            throw $failure;
+        }
+    }
+
+    /**
+     * Substitute {key} placeholders in the message from scalar/Stringable context values.
+     *
+     * Reserved keys (timestamp, name, format) are never treated as placeholders, since they're
+     * Logger-managed metadata rather than user-supplied context. Consumed keys are removed from the
+     * returned context so writers don't also serialize a value that's already inline in the message.
+     *
+     * @param  string $message
+     * @param  array  $context
+     * @return array
+     */
+    protected function interpolate(string $message, array $context): array
+    {
+        $replace = [];
+
+        foreach ($context as $key => $value) {
+            if (in_array($key, self::RESERVED_CONTEXT_KEYS, true)) {
+                continue;
+            }
+
+            if ((is_scalar($value) || $value instanceof Stringable) && str_contains($message, '{' . $key . '}')) {
+                $replace['{' . $key . '}'] = (string)$value;
+                unset($context[$key]);
+            }
+        }
+
+        return [strtr($message, $replace), $context];
     }
 
 }

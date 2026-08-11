@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Log\Writer;
  * @category   Pop
  * @package    Pop\Log
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    5.0.0
  */
 interface WriterInterface
 {
@@ -29,17 +29,17 @@ interface WriterInterface
     /**
      * Set log limit
      *
-     * @param  int $level
+     * @param  string|int $level
      * @return WriterInterface
      */
-    public function setLogLimit(int $level): WriterInterface;
+    public function setLogLimit(string|int $level): WriterInterface;
 
     /**
      * Get log limit
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getLogLimit(): int|null;
+    public function getLogLimit(): string|null;
 
     /**
      * Has log limit
@@ -51,20 +51,21 @@ interface WriterInterface
     /**
      * Check if a log level is within the set log level limit
      *
-     * @param  int $level
+     * @param  string|int $level
      * @return bool
      */
-    public function isWithinLogLimit(int $level): bool;
+    public function isWithinLogLimit(string|int $level): bool;
 
     /**
      * Write to the log
      *
-     * @param  mixed  $level
+     * @param  string $level
      * @param  string $message
      * @param  array  $context
+     * @throws Exception
      * @return WriterInterface
      */
-    public function writeLog(mixed $level, string $message, array $context = []): WriterInterface;
+    public function writeLog(string $level, string $message, array $context = []): WriterInterface;
 
     /**
      * Determine

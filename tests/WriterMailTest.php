@@ -42,7 +42,7 @@ class WriterMailTest extends TestCase
             ]
         ]);
 
-        $writer->writeLog(5, 'This is a mail test.', [
+        $writer->writeLog(\Psr\Log\LogLevel::NOTICE, 'This is a mail test.', [
             'timestamp' => date('Y-m-d H:i:s'),
             'name'      => 'NOTICE'
         ]);
@@ -64,12 +64,68 @@ class WriterMailTest extends TestCase
             ]
         ]);
 
-        $writer->writeLog(5, 'This is a mail test.', [
+        $writer->writeLog(\Psr\Log\LogLevel::NOTICE, 'This is a mail test.', [
             'timestamp' => date('Y-m-d H:i:s'),
             'name'      => 'NOTICE'
         ]);
 
         $this->assertInstanceOf('Pop\Log\Writer\Mail', $writer);
+    }
+
+    public function testWriteLogSanitizesSubjectAndBody()
+    {
+        $transport = new class implements \Pop\Mail\Transport\TransportInterface {
+            public ?\Pop\Mail\Message $captured = null;
+            public function send(\Pop\Mail\Message $message): mixed
+            {
+                $this->captured = $message;
+                return null;
+            }
+        };
+
+        $writer = new Writer\Mail(new Mail\Mailer($transport), 'nobody@localhost');
+        $writer->writeLog(\Psr\Log\LogLevel::NOTICE, "Injected\r\nsecond line", [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'name'      => "Bad\r\nName"
+        ]);
+
+        $this->assertNotNull($transport->captured);
+
+        $subject = $transport->captured->getSubject();
+        $this->assertStringNotContainsString("\r", $subject);
+        $this->assertStringNotContainsString("\n", $subject);
+        $this->assertStringContainsString('Bad  Name', $subject);
+
+        $body = rtrim($transport->captured->getBody(), "\r\n");
+        $this->assertStringNotContainsString("\r", $body);
+        $this->assertStringNotContainsString("\n", $body);
+        $this->assertStringContainsString('Bad  Name', $body);
+        $this->assertStringContainsString('Injected  second line', $body);
+    }
+
+    public function testWriteLogSanitizesContextValue()
+    {
+        $transport = new class implements \Pop\Mail\Transport\TransportInterface {
+            public ?\Pop\Mail\Message $captured = null;
+            public function send(\Pop\Mail\Message $message): mixed
+            {
+                $this->captured = $message;
+                return null;
+            }
+        };
+
+        $writer = new Writer\Mail(new Mail\Mailer($transport), 'nobody@localhost');
+        $writer->writeLog(\Psr\Log\LogLevel::NOTICE, 'Login failed', [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'name'      => 'NOTICE',
+            'username'  => "bob\r\nADMIN GRANTED ROOT;"
+        ]);
+
+        $this->assertNotNull($transport->captured);
+
+        $body = rtrim($transport->captured->getBody(), "\r\n");
+        $this->assertStringNotContainsString("\r", $body);
+        $this->assertStringNotContainsString("\n", $body);
     }
 
 }
