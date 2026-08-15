@@ -96,7 +96,7 @@ class WriterMailTest extends TestCase
         $this->assertStringNotContainsString("\n", $subject);
         $this->assertStringContainsString('Bad  Name', $subject);
 
-        $body = rtrim($transport->captured->getBody(), "\r\n");
+        $body = rtrim($transport->captured->getParts()[0]->getBody()->getContent(), "\r\n");
         $this->assertStringNotContainsString("\r", $body);
         $this->assertStringNotContainsString("\n", $body);
         $this->assertStringContainsString('Bad  Name', $body);
@@ -123,7 +123,7 @@ class WriterMailTest extends TestCase
 
         $this->assertNotNull($transport->captured);
 
-        $body = rtrim($transport->captured->getBody(), "\r\n");
+        $body = rtrim($transport->captured->getParts()[0]->getBody()->getContent(), "\r\n");
         $this->assertStringNotContainsString("\r", $body);
         $this->assertStringNotContainsString("\n", $body);
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -202,7 +203,7 @@ class Mail extends AbstractWriter
                             $mailMessage->setReturnPath($value);
                             break;
                         default:
-                            $mailMessage->addHeader($header, $value);
+                            $mailMessage->addHeader($header, (string)$value);
                     }
                 }
             }
