@@ -29,6 +29,11 @@
         "popphp/pop-http": "^6.0.0-beta.6",
         "popphp/pop-mail": "^5.0.0-beta.1"
     },
+    "suggest": {
+        "popphp/pop-db": "For using the Database writer (^7.0.0)",
+        "popphp/pop-http": "For using the Http writer (^6.0.0)",
+        "popphp/pop-mail": "For using the Mail writer (^5.0.0)"
+    },
     "autoload": {
         "psr-4": {
             "Pop\\Log\\": "src/"
