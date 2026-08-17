@@ -105,7 +105,6 @@ class WriterFileTest extends TestCase
         $writer = new File($path);
 
         $reflection = new \ReflectionMethod(File::class, 'withExclusiveLock');
-        $reflection->setAccessible(true);
 
         $lockedDuringTransform = null;
 
@@ -147,11 +146,9 @@ class WriterFileTest extends TestCase
         // (including the is_resource()-guarded fclose() cleanup) without needing a second
         // process to hold a real conflicting lock.
         $fileProperty = new \ReflectionProperty(File::class, 'file');
-        $fileProperty->setAccessible(true);
         $fileProperty->setValue($writer, 'php://memory');
 
         $reflection = new \ReflectionMethod(File::class, 'withExclusiveLock');
-        $reflection->setAccessible(true);
 
         $this->expectException(Exception::class);
         try {
