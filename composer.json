@@ -25,9 +25,9 @@
     "require-dev": {
         "phpunit/phpunit": "^12.5.0",
         "phpstan/phpstan": "^2.2",
-        "popphp/pop-db": "^7.0.0-beta.5",
-        "popphp/pop-http": "^6.0.0-beta.6",
-        "popphp/pop-mail": "^5.0.0-beta.1"
+        "popphp/pop-db": "^7.0.0",
+        "popphp/pop-http": "^6.0.0",
+        "popphp/pop-mail": "^5.0.0"
     },
     "suggest": {
         "popphp/pop-db": "For using the Database writer (^7.0.0)",
