@@ -292,6 +292,46 @@ class LoggerTest extends TestCase
         }
     }
 
+    public function testLogChainsFailuresFromMultipleWritersOntoThrownException()
+    {
+        if (file_exists(__DIR__ . '/tmp/test.log')) {
+            unlink(__DIR__ . '/tmp/test.log');
+        }
+
+        $firstThrowingWriter = new class extends Writer\AbstractWriter {
+            public function writeLog(string $level, string $message, array $context = []): static
+            {
+                throw new Writer\Exception('First writer failed');
+            }
+        };
+
+        $secondThrowingWriter = new class extends Writer\AbstractWriter {
+            public function writeLog(string $level, string $message, array $context = []): static
+            {
+                throw new Writer\Exception('Second writer failed');
+            }
+        };
+
+        $fileWriter = new Writer\File(__DIR__ . '/tmp/test.log');
+        $logger     = new Logger([$firstThrowingWriter, $secondThrowingWriter, $fileWriter]);
+
+        try {
+            $logger->info('This should still reach the file writer.');
+            $this->fail('Expected a Writer\Exception to be thrown.');
+        } catch (Writer\Exception $exception) {
+            $this->assertStringContainsString(
+                'This should still reach the file writer.',
+                file_get_contents(__DIR__ . '/tmp/test.log')
+            );
+            unlink(__DIR__ . '/tmp/test.log');
+
+            $this->assertEquals('First writer failed', $exception->getMessage());
+            $this->assertNotNull($exception->getPrevious());
+            $this->assertEquals('Second writer failed', $exception->getPrevious()->getMessage());
+            $this->assertNull($exception->getPrevious()->getPrevious());
+        }
+    }
+
     public function testAddProcessorEnrichesContext()
     {
         if (file_exists(__DIR__ . '/tmp/test.log')) {

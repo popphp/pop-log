@@ -351,18 +351,39 @@ class Logger implements LoggerInterface
         [$message, $context] = $this->interpolate((string)$message, $context);
 
         $failure = null;
+        $tail    = null;
 
         foreach ($this->writers as $writer) {
             try {
                 $writer->writeLog($level, $message, $context);
             } catch (\Exception $exception) {
-                $failure ??= $exception;
+                if ($failure === null) {
+                    $failure = $exception;
+                } else {
+                    $this->chainException($tail, $exception);
+                }
+                $tail = $exception;
             }
         }
 
         if ($failure !== null) {
             throw $failure;
         }
+    }
+
+    /**
+     * Attach $next as $exception's previous exception, so that a writer failure occurring after the
+     * first one remains reachable via getPrevious() instead of being silently discarded. \Exception's
+     * $previous can only be set through the constructor, so exceptions caught independently (as writers
+     * fail one by one during the fan-out above) are linked together here via Reflection.
+     *
+     * @param  \Exception $exception
+     * @param  \Exception $next
+     * @return void
+     */
+    private function chainException(\Exception $exception, \Exception $next): void
+    {
+        (new \ReflectionProperty(\Exception::class, 'previous'))->setValue($exception, $next);
     }
 
     /**

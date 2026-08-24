@@ -351,7 +351,10 @@ Several writers throw `Pop\Log\Writer\Exception` when they can't do their job:
 
 A `Logger` with multiple writers isolates these failures per writer: if one writer throws during a
 `log()`/`info()`/etc. call, the remaining writers still run, and the first exception encountered is
-re-thrown only after every writer has had a chance to write.
+re-thrown only after every writer has had a chance to write. If more than one writer fails, every
+failure beyond the first is still reachable &mdash; each is chained onto the thrown exception via
+`getPrevious()`, in the order the writers ran, so no failure is silently lost even though only one
+exception is thrown.
 
 [Top](#pop-log)
 
